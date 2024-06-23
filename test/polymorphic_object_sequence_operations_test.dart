@@ -94,7 +94,7 @@ main() {
     test("should use pluck and return the children of the people", () async {
       Cursor parents =
           await r.table(tableName!).pluck('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+      //expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));

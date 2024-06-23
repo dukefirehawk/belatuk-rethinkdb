@@ -277,9 +277,9 @@ class RqlQuery {
   }
 
   Future run(Connection c, [globalOptargs]) {
-    if (c == null) {
-      throw RqlDriverError("RqlQuery.run must be given a connection to run.");
-    }
+    //if (c == null) {
+    //  throw RqlDriverError("RqlQuery.run must be given a connection to run.");
+    //}
 
     return c._start(this, globalOptargs);
   }
@@ -422,7 +422,7 @@ class RqlQuery {
           formatOpts = {"time_format": "native"};
         }
         String timeFormat = formatOpts['time_format'];
-        if (timeFormat != null || timeFormat == 'native') {
+        if (timeFormat == 'native') {
           // Convert to native dart DateTime
           return _reqlTypeTimeToDatetime(obj);
         } else if (timeFormat != 'raw') {

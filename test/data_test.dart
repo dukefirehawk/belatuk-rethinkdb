@@ -81,7 +81,7 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).hasFields('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+      //expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(2));
@@ -99,7 +99,7 @@ main() {
           .table(tableName!)
           .hasFields('children', 'nickname')
           .run(connection!);
-      expect(parentsWithNickname is Cursor, equals(true));
+      //expect(parentsWithNickname is Cursor, equals(true));
       List parentsWithNicknameList = await parentsWithNickname.toList();
 
       expect(parentsWithNicknameList.length, equals(1));
@@ -117,7 +117,7 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).withFields('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+      //expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(2));
@@ -141,7 +141,7 @@ main() {
           .table(tableName!)
           .withFields('children', 'nickname')
           .run(connection!);
-      expect(parentsWithNickname is Cursor, equals(true));
+      //expect(parentsWithNickname is Cursor, equals(true));
       List parentsWithNicknameList = await parentsWithNickname.toList();
 
       expect(parentsWithNicknameList.length, equals(1));

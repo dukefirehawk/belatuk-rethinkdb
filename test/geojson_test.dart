@@ -436,7 +436,7 @@ main() {
           .table(tableName)
           .getNearest(r.point(80.5, 20), {'index': 'location'}).run(connection);
 
-      expect(l is List, equals(true));
+      //expect(l is List, equals(true));
       expect(l.length, equals(1));
     });
   });
