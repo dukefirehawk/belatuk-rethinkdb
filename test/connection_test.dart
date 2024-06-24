@@ -27,8 +27,8 @@ main() {
   test("connection should run onconnect and onclose listeners", () async {
     int connectCounter = 0;
     int closeCounter = 0;
-    Function f = () => connectCounter++;
-    Function fClose = () => closeCounter++;
+    f() => connectCounter++;
+    fClose() => closeCounter++;
     Connection conn = await r.connect();
 
     expect(connectCounter, equals(0));

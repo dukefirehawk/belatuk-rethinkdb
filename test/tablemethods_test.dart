@@ -14,18 +14,18 @@ main() {
 
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName).run(connection);
     }
 
     if (databaseName == null) {
       String dbName = await r.uuid().run(connection);
-      databaseName = "test_database_" + dbName.replaceAll("-", "");
+      databaseName = "test_database_${dbName.replaceAll("-", "")}";
     }
 
     if (tableName == null) {
       String tblName = await r.uuid().run(connection);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
     }
     connection!.use(testDbName!);
   });

@@ -14,18 +14,18 @@ main() {
 
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName).run(connection);
     }
 
     if (databaseName == null) {
       String dbName = await r.uuid().run(connection);
-      databaseName = "test_database_" + dbName.replaceAll("-", "");
+      databaseName = "test_database_${dbName.replaceAll("-", "")}";
     }
 
     if (tableName == null) {
       String tblName = await r.uuid().run(connection);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
     }
     connection!.use(testDbName!);
   });
@@ -109,7 +109,7 @@ main() {
   test("r.dbList should list all databases", () async {
     List response = await r.dbList().run(connection);
 
-    expect(response is List, equals(true));
+    expect(response, equals(true));
     expect(response.indexOf('rethinkdb'), greaterThan(-1));
   });
 
@@ -117,7 +117,6 @@ main() {
     test("r.range() with no arguments should return a stream", () async {
       Cursor cur = await r.range().run(connection);
 
-      expect(cur is Cursor, equals(true));
       List item = await cur.take(17).toList();
       expect(item,
           equals([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]));
@@ -156,7 +155,6 @@ main() {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
-      ;
     });
 
     test("table should allow for `read_mode: majority` option", () async {
@@ -168,7 +166,6 @@ main() {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
-      ;
     });
 
     test("table should allow for `read_mode: outdated` option", () async {
@@ -180,7 +177,6 @@ main() {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
-      ;
     });
 
     test("table should catch invalid read_mode option", () async {
@@ -194,7 +190,6 @@ main() {
             equals(
                 'Read mode `badReadMode` unrecognized (options are "majority", "single", and "outdated").'));
       }
-      ;
     });
 
     test("table should allow for `identifier_format: name` option", () async {
@@ -206,7 +201,6 @@ main() {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
-      ;
     });
 
     test("table should allow for `identifier_format: uuid` option", () async {
@@ -218,7 +212,6 @@ main() {
         expect(item.containsKey('id'), equals(true));
         expect(item.containsKey('query_engine'), equals(true));
       }
-      ;
     });
 
     test("table should catch invalid identifier_format option", () async {
@@ -243,7 +236,6 @@ main() {
         expect(err.toString().split("\n")[2],
             equals('Unrecognized optional argument `fake_option`.'));
       }
-      ;
     });
   });
 
@@ -328,7 +320,7 @@ main() {
 
     await Future.delayed(Duration(milliseconds: 1));
 
-    expect(dt is DateTime, equals(true));
+    //expect(dt is DateTime, equals(true));
     expect(DateTime.now().difference(dt).inSeconds == 0, equals(true));
   });
 
@@ -459,7 +451,7 @@ main() {
           .object('key', 'val', 'listKey', [1, 2, 3, 4], 'objKey', {'a': 'b'})
           .run(connection);
 
-      expect(obj is Map, equals(true));
+      //expect(obj is Map, equals(true));
       expect(obj['key'], equals('val'));
       expect(obj['listKey'], equals([1, 2, 3, 4]));
       expect(obj['objKey']['a'], equals('b'));
@@ -492,7 +484,6 @@ main() {
         () async {
       double number = await r.random().run(connection);
 
-      expect(number is double, equals(true));
       expect(number, lessThanOrEqualTo(1));
       expect(number, greaterThanOrEqualTo(0));
     });
@@ -502,7 +493,6 @@ main() {
         () async {
       int number = await r.random(50).run(connection);
 
-      expect(number is int, equals(true));
       expect(number, lessThanOrEqualTo(50));
       expect(number, greaterThanOrEqualTo(0));
     });
@@ -510,14 +500,12 @@ main() {
     test("should generate a random int between the two arguments", () async {
       int number = await r.random(50, 55).run(connection);
 
-      expect(number is int, equals(true));
       expect(number, lessThanOrEqualTo(55));
       expect(number, greaterThanOrEqualTo(50));
     });
 
     test("should generate a random float between the two arguments", () async {
       double number = await r.random(50, 55, {'float': true}).run(connection);
-      expect(number is double, equals(true));
       expect(number, lessThanOrEqualTo(55));
       expect(number, greaterThanOrEqualTo(50));
     });
@@ -612,7 +600,6 @@ main() {
     test("should convert string to binary", () async {
       List data = await r.binary('billysometimes').run(connection);
 
-      expect(data is List, equals(true));
       expect(
           data,
           equals([
@@ -638,14 +625,13 @@ main() {
     test("should create a unique uuid", () async {
       String val = await r.uuid().run(connection);
 
-      expect(val is String, equals(true));
+      expect(val, isNotNull);
     });
 
     test("should create a uuid based on a string key", () async {
       String key = "billysometimes";
       String val = await r.uuid(key).run(connection);
 
-      expect(val is String, equals(true));
       expect(val, equals('b3f5029e-f777-572f-a85d-5529b74fd99b'));
     });
   });

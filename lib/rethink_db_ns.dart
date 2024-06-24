@@ -16,7 +16,7 @@ part 'src/net.dart';
 part 'src/cursor.dart';
 
 class AddFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   AddFunction([this._rqlQuery]);
 
@@ -43,7 +43,7 @@ class AddFunction {
 
 /// computes logical 'and' of two or more values
 class AndFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   AndFunction([this._rqlQuery]);
 
@@ -80,7 +80,7 @@ class BranchFunction {
 }
 
 class DivFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   DivFunction([this._rqlQuery]);
 
@@ -106,7 +106,7 @@ class DivFunction {
 }
 
 class EqFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   EqFunction([this._rqlQuery]);
 
@@ -132,7 +132,7 @@ class EqFunction {
 }
 
 class GeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   GeFunction([this._rqlQuery]);
 
@@ -158,7 +158,7 @@ class GeFunction {
 }
 
 class GtFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   GtFunction([this._rqlQuery]);
 
@@ -184,7 +184,7 @@ class GtFunction {
 }
 
 class LeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   LeFunction([this._rqlQuery]);
 
@@ -222,7 +222,7 @@ class LineFunction {
 }
 
 class LtFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   LtFunction([this._rqlQuery]);
 
@@ -263,7 +263,7 @@ class MapFunction {
 }
 
 class MulFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   MulFunction([this._rqlQuery]);
 
@@ -289,7 +289,7 @@ class MulFunction {
 }
 
 class NeFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   NeFunction([this._rqlQuery]);
 
@@ -316,7 +316,7 @@ class NeFunction {
 
 /// Adds fields to an object
 class ObjectFunction {
-  RethinkDb _rethinkdb;
+  final RethinkDb _rethinkdb;
 
   ObjectFunction(this._rethinkdb);
 
@@ -332,7 +332,7 @@ class ObjectFunction {
 
 /// computes logical 'or' of two or more values
 class OrFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   OrFunction([this._rqlQuery]);
 
@@ -370,7 +370,7 @@ class PolygonFunction {
 /// Evaluate the expr in the context of one or more value bindings.
 /// The type of the result is the type of the value returned from expr.
 class RqlDoFunction {
-  RethinkDb _rethinkdb;
+  final RethinkDb _rethinkdb;
 
   RqlDoFunction(this._rethinkdb);
 
@@ -386,7 +386,7 @@ class RqlDoFunction {
 }
 
 class SubFunction {
-  RqlQuery? _rqlQuery;
+  final RqlQuery? _rqlQuery;
 
   SubFunction([this._rqlQuery]);
 
@@ -560,7 +560,7 @@ class RethinkDb {
   }
 
   /// Returns logical inverse of the arguments given
-  Not not([value]) => Not(value == null ? true : value);
+  Not not([value]) => Not(value ?? true);
 
   /// Executes the mappingFunction for each item in a sequence or array
   /// and returns the transformed array. multiple sequences and arrays

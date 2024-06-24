@@ -14,14 +14,14 @@ main() {
 
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName).run(connection);
     }
     connection!.use(testDbName!);
 
     if (tableName == null) {
       String tblName = await r.uuid().run(connection);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
       await r.tableCreate(tableName).run(connection);
     }
   });
@@ -36,7 +36,7 @@ main() {
     }
   });
 
-  _setUpTable() async {
+  setUpTable() async {
     return await r.table(tableName).insert([
       {'id': 1, 'name': 'Jane Doe'},
       {'id': 2, 'name': 'Jon Doe'},
@@ -46,7 +46,7 @@ main() {
 
   group("get command -> ", () {
     test("should get a record by primary key", () async {
-      await _setUpTable();
+      await setUpTable();
       var usr = await r.table(tableName).get(1).run(connection);
 
       expect(usr['id'], equals(1));

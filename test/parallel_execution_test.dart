@@ -11,7 +11,7 @@ main() {
     final conn = await r.connect();
     if (testDbName == null) {
       String useDb = await r.uuid().run(conn);
-      testDbName = 'parralel_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'parralel_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName!).run(conn);
     }
     conn.close();
@@ -34,7 +34,9 @@ main() {
 
 Future<bool> pEx() {
   final r = RethinkDb();
-  return r.connect(db: testDbName!, port: 28015).then((connection) => _queryWhileWriting(connection, r));
+  return r
+      .connect(db: testDbName!, port: 28015)
+      .then((connection) => _queryWhileWriting(connection, r));
 }
 
 Future<bool> _queryWhileWriting(conn, r) async {
