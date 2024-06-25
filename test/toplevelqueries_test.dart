@@ -109,7 +109,6 @@ main() {
   test("r.dbList should list all databases", () async {
     List response = await r.dbList().run(connection);
 
-    expect(response, equals(true));
     expect(response.indexOf('rethinkdb'), greaterThan(-1));
   });
 

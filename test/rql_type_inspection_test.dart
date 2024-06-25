@@ -362,12 +362,10 @@ main() {
                 break;
               default:
                 fail('invalid key');
-                break;
             }
             break;
           default:
             fail('invalid key');
-            break;
         }
       });
     });

@@ -58,7 +58,6 @@ main() {
     test("should get records by primary keys", () async {
       Cursor usrs = await r.table(tableName).getAll(1, 3).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList[1]['id'], equals(1));
@@ -74,7 +73,6 @@ main() {
         () async {
       Cursor usrs = await r.table(tableName).between(1, 3).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(2));
@@ -90,7 +88,6 @@ main() {
           .table(tableName)
           .between(1, 3, {'right_bound': 'closed'}).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(3));
@@ -105,7 +102,6 @@ main() {
       Cursor usrs = await r
           .table(tableName)
           .between(1, 3, {'left_bound': 'open'}).run(connection);
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(1));
@@ -118,7 +114,6 @@ main() {
       Cursor usrs =
           await r.table(tableName).between(r.minval, 2).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(1));
@@ -131,7 +126,6 @@ main() {
       Cursor usrs =
           await r.table(tableName).between(2, r.maxval).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(2));
@@ -146,7 +140,6 @@ main() {
       Cursor users =
           await r.table(tableName).filter({'name': 'Jane Doe'}).run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(1));
@@ -160,7 +153,6 @@ main() {
           .filter(r.row('name').match("Doe"))
           .run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(2));
@@ -173,7 +165,6 @@ main() {
         return user('name').eq("Jon Doe").or(user('name').eq("Firstname Last"));
       }).run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(2));

@@ -116,7 +116,6 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).pluck('children', 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -147,7 +146,7 @@ main() {
       Cursor parents = await r.table(tableName!).pluck({
         'children': ['id', 'name']
       }).run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -171,7 +170,7 @@ main() {
       Cursor parents = await r.table(tableName!).pluck({
         'children': ['id', 'name']
       }, 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -224,7 +223,7 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).without('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -241,7 +240,7 @@ main() {
           .table(tableName!)
           .without('children', 'name')
           .run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -257,7 +256,7 @@ main() {
       Cursor parents = await r.table(tableName!).without({
         'children': ['id', 'name']
       }).run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -285,7 +284,7 @@ main() {
       Cursor parents = await r.table(tableName!).without({
         'children': ['id', 'name']
       }, 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));

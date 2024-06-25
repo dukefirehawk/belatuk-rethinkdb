@@ -130,7 +130,6 @@ main() {
       () async {
     List tables = await r.tableList().run(connection);
 
-    expect(tables is List, equals(true));
     expect(tables.length, equals(4));
   });
 
@@ -194,7 +193,6 @@ main() {
   test("indexList command -> should list all indexes for a table", () async {
     List indexes = await r.table('unitTestTable3').indexList().run(connection);
 
-    expect(indexes is List, equals(true));
     expect(indexes.length, equals(5));
   });
 
@@ -220,7 +218,6 @@ main() {
       List indexes =
           await r.table('unitTestTable3').indexStatus().run(connection);
 
-      expect(indexes is List, equals(true));
       expect(indexes.length, equals(4));
     });
 
@@ -228,7 +225,6 @@ main() {
       List indexes =
           await r.table('unitTestTable3').indexStatus('index1').run(connection);
 
-      expect(indexes is List, equals(true));
       expect(indexes.length, equals(1));
       expect(indexes[0]['index'], equals('index1'));
     });
@@ -239,7 +235,6 @@ main() {
           .indexStatus('index1', 'location')
           .run(connection);
 
-      expect(indexes is List, equals(true));
       expect(indexes.length, equals(2));
       expect(indexes[0]['index'], equals('index1'));
     });
@@ -250,7 +245,6 @@ main() {
       List response =
           await r.table('unitTestTable3').indexWait().run(connection);
 
-      expect(response is List, equals(true));
       expect(response.length, equals(4));
     });
 
@@ -258,7 +252,6 @@ main() {
       List response =
           await r.table('unitTestTable3').indexWait('index1').run(connection);
 
-      expect(response is List, equals(true));
       expect(response.length, equals(1));
       expect(response[0]['index'], equals('index1'));
     });
@@ -269,7 +262,6 @@ main() {
           .indexWait('index1', 'location')
           .run(connection);
 
-      expect(indexes is List, equals(true));
       expect(indexes.length, equals(2));
       expect(indexes[0]['index'], equals('index1'));
     });
