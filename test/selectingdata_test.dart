@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {

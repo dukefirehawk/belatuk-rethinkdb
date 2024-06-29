@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.0.5
+## 1.0.0
 
 * Require dart >= 3.3.0
 * Updated dependencies

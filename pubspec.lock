@@ -114,10 +114,10 @@ packages:
     dependency: "direct main"
     description:
       name: hashlib
-      sha256: "67e640e19cc33070113acab3125cd48ebe480a0300e15554dec089b8878a729f"
+      sha256: d7666fb312a111511276b22ed30e4fc6c71e157e05056b63837c4fb491a324cd
       url: "https://pub.dev"
     source: hosted
-    version: "1.16.0"
+    version: "1.17.0"
   hashlib_codecs:
     dependency: transitive
     description:
