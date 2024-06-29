@@ -1,4 +1,4 @@
-part of rethink_db;
+part of '../rethink_db_ns.dart';
 
 class Cursor extends Stream {
   final Connection _conn;

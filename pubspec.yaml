@@ -9,10 +9,9 @@ environment:
 dependencies:
   protobuf: ^3.1.0
   fixnum: ^1.0.0
-  crypto: ^3.0.1
   convert: ^3.0.1
-  pbkdf2ns: ^0.0.2
-  pointycastle: ^3.9.1
+  hashlib: ^1.16.0
+  crypto: ^3.0.1
 
 dev_dependencies:
   test: ^1.25.0

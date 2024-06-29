@@ -208,17 +208,16 @@ class Connection {
         if (authMap.containsKey('r')) {
           String salt = String.fromCharCodes(base64.decode(authMap['s']));
 
-          PBKDF2NS gen = PBKDF2NS(hash: sha256);
-
           int i = int.parse(authMap['i']);
-
           String clientFinalMessageWithoutProof = "c=biws,r=${authMap['r']}";
 
-          List<int> saltedPassword = gen.generateKey(_password, salt, i, 32);
+          //PBKDF2NS gen = PBKDF2NS(hash: sha256);
+          //List<int> saltedPassword = gen.generateKey(_password, salt, i, 32);
+          var saltedPassword =
+              hashlib.pbkdf2(_password.codeUnits, salt.codeUnits, i, 32);
 
-          Digest clientKey =
-              Hmac(sha256, saltedPassword).convert("Client Key".codeUnits);
-
+          Digest clientKey = Hmac(sha256, saltedPassword.bytes)
+              .convert("Client Key".codeUnits);
           Digest storedKey = sha256.convert(clientKey.bytes);
 
           String authMessage =
@@ -229,8 +228,8 @@ class Connection {
 
           List<int> clientProof = _xOr(clientKey.bytes, clientSignature.bytes);
 
-          Digest serverKey =
-              Hmac(sha256, saltedPassword).convert("Server Key".codeUnits);
+          Digest serverKey = Hmac(sha256, saltedPassword.bytes)
+              .convert("Server Key".codeUnits);
 
           _serverSignature =
               Hmac(sha256, serverKey.bytes).convert(authMessage.codeUnits);

@@ -1,4 +1,4 @@
-part of rethink_db;
+part of '../rethink_db_ns.dart';
 
 const defaultNestingDepth = 20;
 
@@ -867,11 +867,9 @@ class Random extends RqlTopLevelQuery {
 
   Random(optargs) : super(null, optargs ?? {});
 
-  Random.leftBound(left, optargs)
-      : super([left], optargs ?? {});
+  Random.leftBound(left, optargs) : super([left], optargs ?? {});
 
-  Random.rightBound(left, right, optargs)
-      : super([left, right], optargs ?? {});
+  Random.rightBound(left, right, optargs) : super([left, right], optargs ?? {});
 }
 
 class Changes extends RqlMethodQuery {

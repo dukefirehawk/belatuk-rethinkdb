@@ -1,4 +1,4 @@
-part of rethink_db;
+part of '../rethink_db_ns.dart';
 
 class RqlError implements Exception {
   String message;

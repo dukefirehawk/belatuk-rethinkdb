@@ -3,11 +3,12 @@ library rethink_db;
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'src/generated/ql2.pb.dart' as p;
-import 'dart:convert';
 import 'dart:collection';
+import 'dart:convert';
+import 'package:hashlib/hashlib.dart' as hashlib;
 import 'package:crypto/crypto.dart';
-import 'package:pbkdf2ns/pbkdf2ns.dart';
 import 'dart:math' as math;
 
 part 'src/ast.dart';
