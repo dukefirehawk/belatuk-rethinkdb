@@ -13,11 +13,11 @@ class Query extends RqlQuery {
   serialize() {
     List res = [_type.value];
     if (_term != null) {
-      res.add(_term!.build());
+      res.add(_term.build());
     }
     if (_globalOptargs != null) {
       Map optargs = {};
-      _globalOptargs!.forEach((k, v) {
+      _globalOptargs.forEach((k, v) {
         optargs[k] = v is RqlQuery ? v.build() : v;
       });
 
@@ -110,9 +110,9 @@ class Connection {
     }
     var sock = Socket.connect(_host, _port);
 
-    if (_sslOpts != null && _sslOpts!.containsKey('ca')) {
+    if (_sslOpts != null && _sslOpts.containsKey('ca')) {
       SecurityContext context = SecurityContext()
-        ..setTrustedCertificates(_sslOpts!['ca']);
+        ..setTrustedCertificates(_sslOpts['ca']);
       sock = SecureSocket.connect(_host, _port, context: context);
     }
 

@@ -211,7 +211,7 @@ class RqlQuery {
     }
 
     if (optargs != null) {
-      optargs!.forEach((k, v) {
+      optargs.forEach((k, v) {
         if ((k == "conflict") && (v is Function)) {
           this.optargs[k] = _expr(v, defaultNestingDepth, 3);
         } else {
