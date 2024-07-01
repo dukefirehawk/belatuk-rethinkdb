@@ -1,10 +1,10 @@
-part of rethink_db;
+part of '../belatuk_rethinkdb.dart';
 
 class Query extends RqlQuery {
-  p.Query_QueryType _type;
-  int _token;
-  RqlQuery? _term;
-  late Map? _globalOptargs;
+  final p.Query_QueryType _type;
+  final int _token;
+  final RqlQuery? _term;
+  late final Map? _globalOptargs;
   Cursor? _cursor;
   final Completer _queryCompleter = Completer();
 
@@ -13,11 +13,11 @@ class Query extends RqlQuery {
   serialize() {
     List res = [_type.value];
     if (_term != null) {
-      res.add(_term!.build());
+      res.add(_term.build());
     }
     if (_globalOptargs != null) {
       Map optargs = {};
-      _globalOptargs!.forEach((k, v) {
+      _globalOptargs.forEach((k, v) {
         optargs[k] = v is RqlQuery ? v.build() : v;
       });
 
@@ -28,23 +28,23 @@ class Query extends RqlQuery {
 }
 
 class Response {
-  int _token;
+  final int _token;
   late int _type;
-  var _data;
-  var _backtrace;
-  var _profile;
+  dynamic _data;
+  dynamic _backtrace;
+  dynamic _profile;
   late int? _errorType;
   List? _notes = [];
 
   Response(this._token, String jsonStr) {
     if (jsonStr.isNotEmpty) {
       Map fullResponse = json.decode(jsonStr);
-      this._type = fullResponse['t'];
-      this._data = fullResponse['r'];
-      this._backtrace = fullResponse['b'];
-      this._profile = fullResponse['p'];
-      this._notes = fullResponse['n'];
-      this._errorType = fullResponse['e'];
+      _type = fullResponse['t'];
+      _data = fullResponse['r'];
+      _backtrace = fullResponse['b'];
+      _profile = fullResponse['p'];
+      _notes = fullResponse['n'];
+      _errorType = fullResponse['e'];
     }
   }
 }
@@ -52,25 +52,25 @@ class Response {
 class Connection {
   Socket? _socket;
   static int _nextToken = 0;
-  String _host;
-  int _port;
+  final String _host;
+  final int _port;
   String _db;
-  String _user;
-  String _password;
-  int _protocolVersion = 0;
+  final String _user;
+  final String _password;
+  final int _protocolVersion = 0;
   late String _clientFirstMessage;
   late Digest _serverSignature;
-  late Map? _sslOpts;
+  late final Map? _sslOpts;
 
-  Completer<Connection> _completer = Completer();
+  final Completer<Connection> _completer = Completer();
 
   int _responseLength = 0;
-  List<int> _responseBuffer = [];
+  final List<int> _responseBuffer = [];
 
-  final Map _replyQueries = Map();
+  final Map _replyQueries = {};
   final Queue<dynamic> _sendQueue = Queue<Query>();
 
-  final Map<String, List> _listeners = Map<String, List>();
+  final Map<String, List> _listeners = <String, List>{};
 
   Connection(
     this._db,
@@ -104,27 +104,31 @@ class Connection {
     close(noreplyWait);
 
     if (_listeners["connect"] != null) {
-      _listeners["connect"]!.forEach((func) => func());
+      for (var func in _listeners["connect"]!) {
+        func();
+      }
     }
-    var _sock = Socket.connect(_host, _port);
+    var sock = Socket.connect(_host, _port);
 
-    if (_sslOpts != null && _sslOpts!.containsKey('ca')) {
+    if (_sslOpts != null && _sslOpts.containsKey('ca')) {
       SecurityContext context = SecurityContext()
-        ..setTrustedCertificates(_sslOpts!['ca']);
-      _sock = SecureSocket.connect(_host, _port, context: context);
+        ..setTrustedCertificates(_sslOpts['ca']);
+      sock = SecureSocket.connect(_host, _port, context: context);
     }
 
-    _sock.then((socket) {
+    sock.then((socket) {
       // ignore: unnecessary_null_comparison
       if (socket != null) {
         _socket = socket;
         _socket!.listen(_handleResponse, onDone: () {
           if (_listeners["close"] != null) {
-            _listeners["close"]!.forEach((func) => func());
+            for (var func in _listeners["close"]!) {
+              func();
+            }
           }
         });
 
-        _clientFirstMessage = "n=$_user,r=" + _makeSalt();
+        _clientFirstMessage = "n=$_user,r=${_makeSalt()}";
         String message = json.encode({
           'protocol_version': _protocolVersion,
           'authentication_method': "SCRAM-SHA-256",
@@ -169,7 +173,9 @@ class Connection {
 
   _handleAuthError(Exception error) {
     if (_listeners["error"] != null) {
-      _listeners["error"]!.forEach((func) => func(error));
+      for (var func in _listeners["error"]!) {
+        func(error);
+      }
     }
     _completer.completeError(error);
   }
@@ -183,36 +189,35 @@ class Connection {
         int min = responseJSON['min_protocol_version'];
         if (min > _protocolVersion || max < _protocolVersion) {
           //We don't actually support changing the protocol yet, so just error.
-          _handleAuthError(RqlDriverError(
-              """Unsupported protocol version ${_protocolVersion},
-                  expected between ${min} and ${max}."""));
+          _handleAuthError(
+              RqlDriverError("""Unsupported protocol version $_protocolVersion,
+                  expected between $min and $max."""));
         }
       } else if (responseJSON.containsKey('authentication')) {
         String authString = responseJSON['authentication'];
         Map authMap = {};
         List<String> authPieces = authString.split(',');
 
-        authPieces.forEach((String piece) {
+        for (var piece in authPieces) {
           int i = piece.indexOf('=');
           String key = piece.substring(0, i);
           String val = piece.substring(i + 1);
           authMap[key] = val;
-        });
+        }
 
         if (authMap.containsKey('r')) {
           String salt = String.fromCharCodes(base64.decode(authMap['s']));
 
-          PBKDF2NS gen = PBKDF2NS(hash: sha256);
-
           int i = int.parse(authMap['i']);
+          String clientFinalMessageWithoutProof = "c=biws,r=${authMap['r']}";
 
-          String clientFinalMessageWithoutProof = "c=biws,r=" + authMap['r'];
+          //PBKDF2NS gen = PBKDF2NS(hash: sha256);
+          //List<int> saltedPassword = gen.generateKey(_password, salt, i, 32);
+          var saltedPassword =
+              hashlib.pbkdf2(_password.codeUnits, salt.codeUnits, i, 32);
 
-          List<int> saltedPassword = gen.generateKey(_password, salt, i, 32);
-
-          Digest clientKey =
-              Hmac(sha256, saltedPassword).convert("Client Key".codeUnits);
-
+          Digest clientKey = Hmac(sha256, saltedPassword.bytes)
+              .convert("Client Key".codeUnits);
           Digest storedKey = sha256.convert(clientKey.bytes);
 
           String authMessage =
@@ -223,16 +228,15 @@ class Connection {
 
           List<int> clientProof = _xOr(clientKey.bytes, clientSignature.bytes);
 
-          Digest serverKey =
-              Hmac(sha256, saltedPassword).convert("Server Key".codeUnits);
+          Digest serverKey = Hmac(sha256, saltedPassword.bytes)
+              .convert("Server Key".codeUnits);
 
           _serverSignature =
               Hmac(sha256, serverKey.bytes).convert(authMessage.codeUnits);
 
           String message = json.encode({
-            'authentication': clientFinalMessageWithoutProof +
-                ",p=" +
-                base64.encode(clientProof)
+            'authentication':
+                "$clientFinalMessageWithoutProof,p=${base64.encode(clientProof)}"
           });
 
           List<int> messageBytes = List.from(message.codeUnits)..add(0);
@@ -260,27 +264,23 @@ class Connection {
     if (hasError != null) {
       query._queryCompleter.completeError(hasError);
     }
-    var value;
+    dynamic value;
 
     if (response._type == p.Response_ResponseType.SUCCESS_PARTIAL.value) {
       _replyQueries[response._token] = query;
-      var cursor;
-      response._notes!.forEach((note) {
+      dynamic cursor;
+      for (var note in response._notes!) {
         if (note == p.Response_ResponseNote.SEQUENCE_FEED.value) {
-          cursor = cursor == null ? Feed(this, query, query.optargs) : cursor;
+          cursor = cursor ?? Feed(this, query, query.optargs);
         } else if (note == p.Response_ResponseNote.UNIONED_FEED.value) {
-          cursor =
-              cursor == null ? UnionedFeed(this, query, query.optargs) : cursor;
+          cursor = cursor ?? UnionedFeed(this, query, query.optargs);
         } else if (note == p.Response_ResponseNote.ATOM_FEED.value) {
-          cursor =
-              cursor == null ? AtomFeed(this, query, query.optargs) : cursor;
+          cursor = cursor ?? AtomFeed(this, query, query.optargs);
         } else if (note == p.Response_ResponseNote.ORDER_BY_LIMIT_FEED.value) {
-          cursor = cursor == null
-              ? OrderByLimitFeed(this, query, query.optargs)
-              : cursor;
+          cursor = cursor ?? OrderByLimitFeed(this, query, query.optargs);
         }
-      });
-      cursor = cursor == null ? Cursor(this, query, query.optargs) : cursor;
+      }
+      cursor = cursor ?? Cursor(this, query, query.optargs);
 
       value = cursor;
       query._cursor = value;
@@ -340,7 +340,9 @@ class Connection {
     List currentListeners = [];
     // ignore: unnecessary_null_comparison
     if (_listeners != null && _listeners[key] != null) {
-      _listeners[key]!.forEach((element) => currentListeners.add(element));
+      for (var element in _listeners[key]!) {
+        currentListeners.add(element);
+      }
     }
 
     currentListeners.add(val);
@@ -419,8 +421,8 @@ class Connection {
   }
 
   _checkErrorResponse(Response response, RqlQuery? term) {
-    var message;
-    var frames;
+    dynamic message;
+    dynamic frames;
     if (response._type == p.Response_ResponseType.RUNTIME_ERROR.value) {
       message = response._data.first;
       frames = response._backtrace;

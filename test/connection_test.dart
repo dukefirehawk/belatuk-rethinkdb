@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -27,8 +27,8 @@ main() {
   test("connection should run onconnect and onclose listeners", () async {
     int connectCounter = 0;
     int closeCounter = 0;
-    Function f = () => connectCounter++;
-    Function fClose = () => closeCounter++;
+    f() => connectCounter++;
+    fClose() => closeCounter++;
     Connection conn = await r.connect();
 
     expect(connectCounter, equals(0));

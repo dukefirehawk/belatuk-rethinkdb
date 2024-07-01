@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -13,14 +13,14 @@ main() {
 
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection!);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName!).run(connection!);
     }
     connection!.use(testDbName!);
 
     if (tableName == null) {
       String tblName = await r.uuid().run(connection!);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
       await r.tableCreate(tableName!).run(connection!);
     }
   });
@@ -143,8 +143,8 @@ main() {
         'id': 1,
         'name': 'Jane Doe'
       }, {
-        'conflict': (_id, _old, _new) =>
-            {'id': _old('id'), 'err': 'bad record'},
+        'conflict': (id, oldVal, newVal) =>
+            {'id': oldVal('id'), 'err': 'bad record'},
         'return_changes': true
       }).run(connection!);
       expect(custom['changes'][0]['new_val'].containsKey('err'), equals(true));
@@ -211,12 +211,12 @@ main() {
         'return_changes': true
       }).run(connection!);
 
-      Map old_val = updated['changes'][0]['old_val'];
-      Map new_val = updated['changes'][0]['new_val'];
+      Map oldVal = updated['changes'][0]['old_val'];
+      Map newVal = updated['changes'][0]['new_val'];
 
-      expect(old_val['kit'].containsKey('drums'), equals(true));
-      expect(new_val['kit'].containsKey('bells'), equals(true));
-      expect(new_val['kit'].containsKey('drums'), equals(false));
+      expect(oldVal['kit'].containsKey('drums'), equals(true));
+      expect(newVal['kit'].containsKey('bells'), equals(true));
+      expect(newVal['kit'].containsKey('drums'), equals(false));
     });
   });
 

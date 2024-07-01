@@ -1,12 +1,12 @@
-part of rethink_db;
+part of '../belatuk_rethinkdb.dart';
 
 class Cursor extends Stream {
-  Connection _conn;
-  Query _query;
-  Map _opts;
+  final Connection _conn;
+  final Query _query;
+  final Map _opts;
   int _outstandingRequests = 0;
   bool _endFlag = false;
-  StreamController _s = StreamController();
+  final StreamController _s = StreamController();
 
   Cursor(this._conn, this._query, this._opts);
 
@@ -31,7 +31,7 @@ class Cursor extends Stream {
       if (!_endFlag) {
         _outstandingRequests++;
         Query query =
-            Query(p.Query_QueryType.CONTINUE, this._query._token, null, null);
+            Query(p.Query_QueryType.CONTINUE, _query._token, null, null);
         query._cursor = this;
         _conn._sendQueue.addLast(query);
         _conn._sendQuery();
@@ -43,6 +43,7 @@ class Cursor extends Stream {
 
   Future close() => _s.close();
 
+  @override
   StreamSubscription listen(Function(dynamic)? onData,
       {Function? onError, Function()? onDone, bool? cancelOnError}) {
     return _s.stream.listen(onData,
@@ -53,31 +54,43 @@ class Cursor extends Stream {
 class Feed extends Cursor {
   Feed(conn, opts, query) : super(conn, opts, query);
 
+  @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
+  @override
   toList() => throw RqlDriverError("`toList` is not available for feeds.");
+  @override
   toString() => "Instance of 'Feed'";
 }
 
 class UnionedFeed extends Cursor {
   UnionedFeed(conn, opts, query) : super(conn, opts, query);
 
+  @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
+  @override
   toList() => throw RqlDriverError("`toList` is not available for feeds.");
+  @override
   toString() => "Instance of 'UnionedFeed'";
 }
 
 class AtomFeed extends Cursor {
   AtomFeed(conn, opts, query) : super(conn, opts, query);
 
+  @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
+  @override
   toList() => throw RqlDriverError("`toList` is not available for feeds.");
+  @override
   toString() => "Instance of 'AtomFeed'";
 }
 
 class OrderByLimitFeed extends Cursor {
   OrderByLimitFeed(conn, opts, query) : super(conn, opts, query);
 
+  @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
+  @override
   toList() => throw RqlDriverError("`toList` is not available for feeds.");
+  @override
   toString() => "Instance of 'OrderByLimitFeed'";
 }

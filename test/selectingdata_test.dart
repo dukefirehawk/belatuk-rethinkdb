@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -14,14 +14,14 @@ main() {
 
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName).run(connection);
     }
     connection!.use(testDbName!);
 
     if (tableName == null) {
       String tblName = await r.uuid().run(connection);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
       await r.tableCreate(tableName).run(connection);
     }
   });
@@ -36,7 +36,7 @@ main() {
     }
   });
 
-  _setUpTable() async {
+  setUpTable() async {
     return await r.table(tableName).insert([
       {'id': 1, 'name': 'Jane Doe'},
       {'id': 2, 'name': 'Jon Doe'},
@@ -46,7 +46,7 @@ main() {
 
   group("get command -> ", () {
     test("should get a record by primary key", () async {
-      await _setUpTable();
+      await setUpTable();
       var usr = await r.table(tableName).get(1).run(connection);
 
       expect(usr['id'], equals(1));
@@ -58,7 +58,6 @@ main() {
     test("should get records by primary keys", () async {
       Cursor usrs = await r.table(tableName).getAll(1, 3).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList[1]['id'], equals(1));
@@ -74,7 +73,6 @@ main() {
         () async {
       Cursor usrs = await r.table(tableName).between(1, 3).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(2));
@@ -90,7 +88,6 @@ main() {
           .table(tableName)
           .between(1, 3, {'right_bound': 'closed'}).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(3));
@@ -105,7 +102,6 @@ main() {
       Cursor usrs = await r
           .table(tableName)
           .between(1, 3, {'left_bound': 'open'}).run(connection);
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(1));
@@ -118,7 +114,6 @@ main() {
       Cursor usrs =
           await r.table(tableName).between(r.minval, 2).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(1));
@@ -131,7 +126,6 @@ main() {
       Cursor usrs =
           await r.table(tableName).between(2, r.maxval).run(connection);
 
-      expect(usrs is Cursor, equals(true));
       List userList = await usrs.toList();
 
       expect(userList.length, equals(2));
@@ -146,7 +140,6 @@ main() {
       Cursor users =
           await r.table(tableName).filter({'name': 'Jane Doe'}).run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(1));
@@ -160,7 +153,6 @@ main() {
           .filter(r.row('name').match("Doe"))
           .run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(2));
@@ -173,7 +165,6 @@ main() {
         return user('name').eq("Jon Doe").or(user('name').eq("Firstname Last"));
       }).run(connection);
 
-      expect(users is Cursor, equals(true));
       List userList = await users.toList();
 
       expect(userList.length, equals(2));

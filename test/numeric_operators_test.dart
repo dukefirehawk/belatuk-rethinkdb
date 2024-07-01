@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -12,13 +12,13 @@ main() {
     connection = await r.connect();
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection!);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName!).run(connection!);
     }
     connection!.use(testDbName!);
     if (tableName == null) {
       String tblName = await r.uuid().run(connection!);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
       await r.tableCreate(tableName!).run(connection!);
     }
   });

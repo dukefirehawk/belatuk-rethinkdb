@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -13,16 +13,16 @@ main() {
     connection = await r.connect();
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName).run(connection);
     }
     if (databaseName == null) {
       String dbName = await r.uuid().run(connection);
-      databaseName = "test_database_" + dbName.replaceAll("-", "");
+      databaseName = "test_database_${dbName.replaceAll("-", "")}";
     }
     if (tableName == null) {
       String tblName = await r.uuid().run(connection);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
     }
     connection!.use(testDbName!);
   });
@@ -436,7 +436,7 @@ main() {
           .table(tableName)
           .getNearest(r.point(80.5, 20), {'index': 'location'}).run(connection);
 
-      expect(l is List, equals(true));
+      //expect(l is List, equals(true));
       expect(l.length, equals(1));
     });
   });

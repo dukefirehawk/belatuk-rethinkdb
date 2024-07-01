@@ -1,4 +1,4 @@
-# RethinkDB Driver for Dart/Flutter
+# RethinkDB Driver for Dart
 
 This is a fork of [Dart 2 and Flutter RethinkDB Driver](https://github.com/marceloneppel/rethinkdb) with [null safety](https://dart.dev/null-safety) 💪🏼 support and less dependencies.
 
@@ -7,6 +7,7 @@ This is a fork of [Dart 2 and Flutter RethinkDB Driver](https://github.com/marce
 ### Install Package
 
 > Install from [Pub](https://pub.dev/)
+
 ```sh
 dart pub add rethink_db_ns
 # or
@@ -19,6 +20,7 @@ dependencies:
 ```
 
 > Install from [Github](https://github.com/G0mb/rethink_db)
+
 ```yaml
 dependencies:
   rethink_db:
@@ -28,11 +30,13 @@ dependencies:
 ```
 
 Then import the package into your project:
+
 ```dart
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 ```
 
 ### Example
+
 ```dart
 RethinkDb r = RethinkDb();
 
@@ -62,6 +66,7 @@ var result = await r.table('tv_shows').get(1).run(connection);
 *More examples will be added soon...*
 
 ### Unit Test
+
 ```sh
 dart test
 ```

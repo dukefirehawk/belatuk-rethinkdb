@@ -1,4 +1,4 @@
-import 'package:rethink_db_ns/rethink_db_ns.dart';
+import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
 import 'package:test/test.dart';
 
 main() {
@@ -8,7 +8,7 @@ main() {
   bool shouldDropTable = false;
   Connection? connection;
 
-  _setUpTable() async {
+  setUpTable() async {
     return await r.table(tableName!).insert([
       {
         'id': 1,
@@ -34,16 +34,16 @@ main() {
     connection = await r.connect();
     if (testDbName == null) {
       String useDb = await r.uuid().run(connection!);
-      testDbName = 'unit_test_db' + useDb.replaceAll("-", "");
+      testDbName = 'unit_test_db${useDb.replaceAll("-", "")}';
       await r.dbCreate(testDbName!).run(connection!);
     }
     connection!.use(testDbName!);
     if (tableName == null) {
       String tblName = await r.uuid().run(connection!);
-      tableName = "test_table_" + tblName.replaceAll("-", "");
+      tableName = "test_table_${tblName.replaceAll("-", "")}";
       await r.tableCreate(tableName!).run(connection!);
     }
-    await _setUpTable();
+    await setUpTable();
   });
 
   tearDown(() async {
@@ -94,7 +94,7 @@ main() {
     test("should use pluck and return the children of the people", () async {
       Cursor parents =
           await r.table(tableName!).pluck('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+      //expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -116,7 +116,6 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).pluck('children', 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -147,7 +146,7 @@ main() {
       Cursor parents = await r.table(tableName!).pluck({
         'children': ['id', 'name']
       }).run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -171,7 +170,7 @@ main() {
       Cursor parents = await r.table(tableName!).pluck({
         'children': ['id', 'name']
       }, 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -224,7 +223,7 @@ main() {
         () async {
       Cursor parents =
           await r.table(tableName!).without('children').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -241,7 +240,7 @@ main() {
           .table(tableName!)
           .without('children', 'name')
           .run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -257,7 +256,7 @@ main() {
       Cursor parents = await r.table(tableName!).without({
         'children': ['id', 'name']
       }).run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));
@@ -285,7 +284,7 @@ main() {
       Cursor parents = await r.table(tableName!).without({
         'children': ['id', 'name']
       }, 'name').run(connection!);
-      expect(parents is Cursor, equals(true));
+
       List parentsList = await parents.toList();
 
       expect(parentsList.length, equals(3));

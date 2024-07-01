@@ -1,4 +1,4 @@
-part of rethink_db;
+part of '../belatuk_rethinkdb.dart';
 
 class RqlError implements Exception {
   String message;
@@ -7,63 +7,58 @@ class RqlError implements Exception {
 
   RqlError(this.message, this.term, this.frames);
 
-  toString() => "${this.runtimeType}!\n\n$message\n\n$term\n\n$frames";
+  @override
+  toString() => "${runtimeType}!\n\n$message\n\n$term\n\n$frames";
 }
 
 class RqlClientError extends RqlError {
-  RqlClientError(String message, term, frames) : super(message, term, frames);
+  RqlClientError(super.message, super.term, super.frames);
 }
 
 class RqlCompileError extends RqlError {
-  RqlCompileError(String message, term, frames) : super(message, term, frames);
+  RqlCompileError(super.message, super.term, super.frames);
 }
 
 class RqlRuntimeError extends RqlError {
-  RqlRuntimeError(String message, term, frames) : super(message, term, frames);
+  RqlRuntimeError(super.message, super.term, super.frames);
 }
 
 class RqlDriverError implements Exception {
   String message;
   RqlDriverError(this.message);
 
+  @override
   toString() => message;
 }
 
 class ReqlInternalError extends RqlRuntimeError {
-  ReqlInternalError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlInternalError(super.message, super.term, super.frames);
 }
 
 class ReqlResourceLimitError extends RqlRuntimeError {
-  ReqlResourceLimitError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlResourceLimitError(super.message, super.term, super.frames);
 }
 
 class ReqlQueryLogicError extends RqlRuntimeError {
-  ReqlQueryLogicError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlQueryLogicError(super.message, super.term, super.frames);
 }
 
 class ReqlNonExistenceError extends RqlRuntimeError {
-  ReqlNonExistenceError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlNonExistenceError(super.message, super.term, super.frames);
 }
 
 class ReqlOpFailedError extends RqlRuntimeError {
-  ReqlOpFailedError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlOpFailedError(super.message, super.term, super.frames);
 }
 
 class ReqlOpIndeterminateError extends RqlRuntimeError {
-  ReqlOpIndeterminateError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlOpIndeterminateError(super.message, super.term, super.frames);
 }
 
 class ReqlUserError extends RqlRuntimeError {
-  ReqlUserError(String message, term, frames) : super(message, term, frames);
+  ReqlUserError(super.message, super.term, super.frames);
 }
 
 class ReqlPermissionError extends RqlRuntimeError {
-  ReqlPermissionError(String message, term, frames)
-      : super(message, term, frames);
+  ReqlPermissionError(super.message, super.term, super.frames);
 }

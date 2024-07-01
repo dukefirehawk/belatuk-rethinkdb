@@ -1,12 +1,29 @@
-# 0.0.4
-- Fix readme info
-# 0.0.3
-- Remove flutter as a dependency
-- Fix failing test
-# 0.0.2
-- Update dependencies
-- Update documentation
+# Change Log
 
-# 0.0.1
-- Null safety support
-- [PBKDF2](https://github.com/G0mb/pbkdf2) dependency update
+## 1.0.0
+
+* Require dart >= 3.3.0
+* Updated dependencies
+* Added `lints` 4.0.0
+* Fixed linter warnings
+* Added `hashlib`
+* Removed `hashlib`
+
+## 0.0.4
+
+* Fix readme info
+
+## 0.0.3
+
+* Remove flutter as a dependency
+* Fix failing test
+
+## 0.0.2
+
+* Update dependencies
+* Update documentation
+
+## 0.0.1
+
+* Null safety support
+* [PBKDF2](https://github.com/G0mb/pbkdf2) dependency update
