@@ -7,7 +7,6 @@
 * Added `lints` 4.0.0
 * Fixed linter warnings
 * Added `hashlib`
-* Removed `hashlib`
 
 ## 0.0.4
 

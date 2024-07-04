@@ -1,8 +1,8 @@
 name: belatuk_rethinkdb
 description: This is an unofficial driver for using RethinkDB in Dart
 version: 1.0.0
-homepage: https://github.com/dart-backend/belatuk_rethinkdb
-repository: https://github.com/dart-backend/belatuk_rethinkdb
+homepage: https://github.com/dart-backend/belatuk-rethinkdb
+repository: https://github.com/dart-backend/belatuk-rethinkdb
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

@@ -1,35 +1,26 @@
-# RethinkDB Driver for Dart
+# Belatuk RethinkDB
 
-This is a fork of [Dart 2 and Flutter RethinkDB Driver](https://github.com/marceloneppel/rethinkdb) with [null safety](https://dart.dev/null-safety) 💪🏼 support and less dependencies.
+This is a fork of [RethinkDB Driver](https://github.com/G0mb/rethink_db) with update to support Dart 3.
 
 ## Getting Started
 
-### Install Package
+### Install package
 
-> Install from [Pub](https://pub.dev/)
+* Install from [Pub](https://pub.dev/)
 
-```sh
-dart pub add rethink_db_ns
-# or
-flutter pub add rethink_db_ns
+```bash
+dart pub add belatuk_rethinkdb
+
 ```
+
+* Add to pubspec.yaml file
 
 ```yaml
 dependencies:
-  rethink_db_ns: ^0.0.4
+  belatuk_rethinkdb: ^1.0.0
 ```
 
-> Install from [Github](https://github.com/G0mb/rethink_db)
-
-```yaml
-dependencies:
-  rethink_db:
-    git: 
-      url: git://github.com/G0mb/rethink_db.git
-      ref: main
-```
-
-Then import the package into your project:
+* Import the package into your project:
 
 ```dart
 import 'package:belatuk_rethinkdb/belatuk_rethinkdb.dart';
@@ -61,9 +52,7 @@ await r.table('tv_shows').insert([
 var result = await r.table('tv_shows').get(1).run(connection);
 ```
 
-> I recommend reviewing the [RethinkDB Documentation](https://rethinkdb.com/api/javascript/) for other types of queries.
-
-*More examples will be added soon...*
+Refer to [RethinkDB Documentation](https://rethinkdb.com/api/javascript/) for other types of queries.
 
 ### Unit Test
 
