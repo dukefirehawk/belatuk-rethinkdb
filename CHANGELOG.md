@@ -1,13 +1,19 @@
 # Change Log
 
+## 1.0.1
+
+* Updated README
+* Fixed linter warnings
+
 ## 1.0.0
 
 * Require dart >= 3.3.0
 * Updated dependencies
-* Added `lints` 4.0.0
+* Updated README
 * Fixed linter warnings
+* Added `lints` 4.0.0
 * Added `hashlib`
-* Removed `hashlib`
+* Removed `pbkdf2ns`
 
 ## 0.0.4
 

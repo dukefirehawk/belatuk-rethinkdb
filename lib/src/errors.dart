@@ -2,13 +2,13 @@ part of '../belatuk_rethinkdb.dart';
 
 class RqlError implements Exception {
   String message;
-  var term;
-  var frames;
+  dynamic term;
+  dynamic frames;
 
   RqlError(this.message, this.term, this.frames);
 
   @override
-  toString() => "${runtimeType}!\n\n$message\n\n$term\n\n$frames";
+  toString() => "$runtimeType\n\n$message\n\n$term\n\n$frames";
 }
 
 class RqlClientError extends RqlError {
