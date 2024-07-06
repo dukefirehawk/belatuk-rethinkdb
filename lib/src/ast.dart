@@ -194,7 +194,7 @@ class RqlMapFunction {
 }
 
 class RqlQuery {
-  p.Term_TermType? tt;
+  p.Term_TermType? termType;
 
   List args = [];
   Map optargs = {};
@@ -202,7 +202,7 @@ class RqlQuery {
   RqlQuery([List? args, Map? optargs]) {
     if (args != null) {
       for (var e in args) {
-        if (_checkIfOptions(e, tt!)) {
+        if (_checkIfOptions(e, termType)) {
           optargs ??= e;
         } else if (e != null) {
           this.args.add(_expr(e));
@@ -439,12 +439,12 @@ class RqlQuery {
         }
       } else if (reqlType == "BINARY") {
         if (formatOpts == null || formatOpts["binary_format"] == "native") {
-          /// the official drivers decode the BASE64 string to binary data
+          /// TODO: the official drivers decode the BASE64 string to binary data
           /// this driver currently has a bug with its [_reqlTypeBinaryToBytes]
           /// for some reason, when trying to convert the index function for
           /// `indexWait` commands, we get a FormatException.
           ///  so for the short term we will just return the BASE64 string
-          ///  with a TODO to find out what is wrong and fix it.
+          ///  with a to find out what is wrong and fix it.
 
           try {
             return _reqlTypeBinaryToBytes(obj);
@@ -791,13 +791,13 @@ class RqlBracketQuery extends RqlMethodQuery {
 }
 
 class Datum extends RqlQuery {
-  @override
-  List args = [];
-  @override
-  Map optargs = {};
-  var data;
+  //@override
+  //List args = [];
+  //@override
+  //Map optargs = {};
+  dynamic data;
 
-  Datum(val) : super(null, null) {
+  Datum(dynamic val) : super(null, null) {
     data = val;
   }
 
@@ -808,17 +808,15 @@ class Datum extends RqlQuery {
 }
 
 class MakeArray extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MAKE_ARRAY;
-
-  MakeArray(args) : super(args);
+  MakeArray(super.args) {
+    tt = p.Term_TermType.MAKE_ARRAY;
+  }
 }
 
 class MakeObj extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MAKE_OBJ;
-
-  MakeObj(objDict) : super(null, objDict);
+  MakeObj(objDict) : super(null, objDict) {
+    tt = p.Term_TermType.MAKE_OBJ;
+  }
 
   @override
   build() {
@@ -831,343 +829,302 @@ class MakeObj extends RqlQuery {
 }
 
 class Var extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.VAR;
+  Var(args) : super([args]) {
+    tt = p.Term_TermType.VAR;
+  }
 
-  Var(args) : super([args]);
-
   @override
-  call(arg) => GetField(this, arg);
+  call(attr) => GetField(this, attr);
 }
 
 class JavaScript extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.JAVASCRIPT;
-
-  JavaScript(args, [optargs]) : super([args], optargs);
+  JavaScript(args, [optargs]) : super([args], optargs) {
+    tt = p.Term_TermType.JAVASCRIPT;
+  }
 }
 
 class Http extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.HTTP;
-
-  Http(args, [optargs]) : super([args], optargs);
+  Http(args, [optargs]) : super([args], optargs) {
+    tt = p.Term_TermType.HTTP;
+  }
 }
 
 class UserError extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ERROR;
-
-  UserError(args, [optargs]) : super([args], optargs);
+  UserError(args, [optargs]) : super([args], optargs) {
+    tt = p.Term_TermType.ERROR;
+  }
 }
 
 class Random extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.RANDOM;
+  Random(optargs) : super(null, optargs ?? {}) {
+    tt = p.Term_TermType.RANDOM;
+  }
 
-  Random(optargs) : super(null, optargs ?? {});
+  Random.leftBound(left, optargs) : super([left], optargs ?? {}) {
+    tt = p.Term_TermType.RANDOM;
+  }
 
-  Random.leftBound(left, optargs) : super([left], optargs ?? {});
-
-  Random.rightBound(left, right, optargs) : super([left, right], optargs ?? {});
+  Random.rightBound(left, right, optargs)
+      : super([left, right], optargs ?? {}) {
+    tt = p.Term_TermType.RANDOM;
+  }
 }
 
 class Changes extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CHANGES;
-
-  Changes([arg, opts]) : super([arg], opts);
+  Changes([arg, opts]) : super([arg], opts) {
+    tt = p.Term_TermType.CHANGES;
+  }
 }
 
 class Fold extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FOLD;
-
-  Fold(seq, base, func, [opts]) : super([seq, base, func], opts);
+  Fold(seq, base, func, [opts]) : super([seq, base, func], opts) {
+    tt = p.Term_TermType.FOLD;
+  }
 }
 
 class Grant extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GRANT;
-
-  Grant([scope, user, options]) : super([scope, user], options);
+  Grant([scope, user, options]) : super([scope, user], options) {
+    tt = p.Term_TermType.GRANT;
+  }
 }
 
 class Default extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DEFAULT;
-
-  Default(obj, value) : super([obj, value]);
+  Default(obj, value) : super([obj, value]) {
+    tt = p.Term_TermType.DEFAULT;
+  }
 }
 
 class ImplicitVar extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.IMPLICIT_VAR;
+  ImplicitVar() : super() {
+    tt = p.Term_TermType.IMPLICIT_VAR;
+  }
 
-  ImplicitVar() : super();
-
   @override
-  call(arg) => GetField(this, arg);
+  call(attr) => GetField(this, attr);
 }
 
 class Eq extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.EQ;
-
-  Eq(numbers) : super(numbers);
+  Eq(super.numbers) {
+    tt = p.Term_TermType.EQ;
+  }
 }
 
 class Ne extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.NE;
-
-  Ne(numbers) : super(numbers);
+  Ne(super.numbers) {
+    tt = p.Term_TermType.NE;
+  }
 }
 
 class Lt extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.LT;
-
-  Lt(numbers) : super(numbers);
+  Lt(super.numbers) {
+    tt = p.Term_TermType.LT;
+  }
 }
 
 class Le extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.LE;
-
-  Le(numbers) : super(numbers);
+  Le(super.numbers) {
+    tt = p.Term_TermType.LE;
+  }
 }
 
 class Gt extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GT;
-
-  Gt(numbers) : super(numbers);
+  Gt(super.numbers) {
+    tt = p.Term_TermType.GT;
+  }
 }
 
 class Ge extends RqlBiCompareOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GE;
-
-  Ge(numbers) : super(numbers);
+  Ge(super.numbers) {
+    tt = p.Term_TermType.GE;
+  }
 }
 
 class Not extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.NOT;
-
-  Not([args]) : super([args]);
+  Not([args]) : super([args]) {
+    tt = p.Term_TermType.NOT;
+  }
 }
 
 class Add extends RqlBiOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ADD;
-
-  Add(objects) : super(objects);
+  Add(super.objects) {
+    tt = p.Term_TermType.ADD;
+  }
 }
 
 class Sub extends RqlBiOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SUB;
-
-  Sub(numbers) : super(numbers);
+  Sub(super.numbers) {
+    tt = p.Term_TermType.SUB;
+  }
 }
 
 class Mul extends RqlBiOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MUL;
-
-  Mul(numbers) : super(numbers);
+  Mul(super.numbers) {
+    tt = p.Term_TermType.MUL;
+  }
 }
 
 class Div extends RqlBiOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DIV;
-
-  Div(numbers) : super(numbers);
+  Div(super.numbers) {
+    tt = p.Term_TermType.DIV;
+  }
 }
 
 class Mod extends RqlBiOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MOD;
-
-  Mod(modable, obj) : super([modable, obj]);
+  Mod(modable, obj) : super([modable, obj]) {
+    tt = p.Term_TermType.MOD;
+  }
 }
 
 class Append extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.APPEND;
-
-  Append(ar, val) : super([ar, val]);
+  Append(ar, val) : super([ar, val]) {
+    tt = p.Term_TermType.APPEND;
+  }
 }
 
 class Floor extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FLOOR;
-
-  Floor(ar) : super([ar]);
+  Floor(ar) : super([ar]) {
+    tt = p.Term_TermType.FLOOR;
+  }
 }
 
 class Ceil extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CEIL;
-
-  Ceil(ar) : super([ar]);
+  Ceil(ar) : super([ar]) {
+    tt = p.Term_TermType.CEIL;
+  }
 }
 
 class Round extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ROUND;
-
-  Round(ar) : super([ar]);
+  Round(ar) : super([ar]) {
+    tt = p.Term_TermType.ROUND;
+  }
 }
 
 class Prepend extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.PREPEND;
-
-  Prepend(ar, val) : super([ar, val]);
+  Prepend(ar, val) : super([ar, val]) {
+    tt = p.Term_TermType.PREPEND;
+  }
 }
 
 class Difference extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DIFFERENCE;
-
-  Difference(diffable, ar) : super([diffable, ar]);
+  Difference(diffable, ar) : super([diffable, ar]) {
+    p.Term_TermType.DIFFERENCE;
+  }
 }
 
 class SetInsert extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SET_INSERT;
-
-  SetInsert(ar, val) : super([ar, val]);
+  SetInsert(ar, val) : super([ar, val]) {
+    p.Term_TermType.SET_INSERT;
+  }
 }
 
 class SetUnion extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SET_UNION;
-
-  SetUnion(un, val) : super([un, val]);
+  SetUnion(un, val) : super([un, val]) {
+    tt = p.Term_TermType.SET_UNION;
+  }
 }
 
 class SetIntersection extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SET_INTERSECTION;
-
-  SetIntersection(inter, ar) : super([inter, ar]);
+  SetIntersection(inter, ar) : super([inter, ar]) {
+    tt = p.Term_TermType.SET_INTERSECTION;
+  }
 }
 
 class SetDifference extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SET_DIFFERENCE;
-
-  SetDifference(diff, ar) : super([diff, ar]);
+  SetDifference(diff, ar) : super([diff, ar]) {
+    tt = p.Term_TermType.SET_DIFFERENCE;
+  }
 }
 
 class Slice extends RqlBracketQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SLICE;
-
   Slice(selection, int start, [end, Map? options])
-      : super([selection, start, end], options);
+      : super([selection, start, end], options) {
+    tt = p.Term_TermType.SLICE;
+  }
 }
 
 class Skip extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SKIP;
-
-  Skip(selection, int number) : super([selection, number]);
+  Skip(selection, int number) : super([selection, number]) {
+    tt = p.Term_TermType.SKIP;
+  }
 }
 
 class Limit extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.LIMIT;
-
-  Limit(selection, int number) : super([selection, number]);
+  Limit(selection, int number) : super([selection, number]) {
+    tt = p.Term_TermType.LIMIT;
+  }
 }
 
 class GetField extends RqlBracketQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.BRACKET;
-
-  GetField(obj, field) : super([obj, field]);
+  GetField(obj, field) : super([obj, field]) {
+    tt = p.Term_TermType.BRACKET;
+  }
 }
 
 class Contains extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CONTAINS;
-
-  Contains(tbl, items) : super([tbl, items]);
+  Contains(tbl, items) : super([tbl, items]) {
+    tt = p.Term_TermType.CONTAINS;
+  }
 }
 
 class HasFields extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.HAS_FIELDS;
-
-  HasFields(obj, items) : super([obj, items]);
+  HasFields(obj, items) : super([obj, items]) {
+    tt = p.Term_TermType.HAS_FIELDS;
+  }
 }
 
 class WithFields extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.WITH_FIELDS;
-
-  WithFields(obj, fields) : super([obj, fields]);
+  WithFields(obj, fields) : super([obj, fields]) {
+    tt = p.Term_TermType.WITH_FIELDS;
+  }
 }
 
 class Keys extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.KEYS;
-
-  Keys(obj) : super([obj]);
+  Keys(obj) : super([obj]) {
+    tt = p.Term_TermType.KEYS;
+  }
 }
 
 class Values extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.VALUES;
-
-  Values(obj) : super([obj]);
+  Values(obj) : super([obj]) {
+    tt = p.Term_TermType.VALUES;
+  }
 }
 
 class RqlObject extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.OBJECT;
-
-  RqlObject(args) : super(args);
+  RqlObject(super.args) {
+    tt = p.Term_TermType.OBJECT;
+  }
 }
 
 class Pluck extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.PLUCK;
-
-  Pluck(items) : super(items);
+  Pluck(super.items) {
+    tt = p.Term_TermType.PLUCK;
+  }
 }
 
 class Without extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.WITHOUT;
-
-  Without(items) : super(items);
+  Without(super.items) {
+    tt = p.Term_TermType.WITHOUT;
+  }
 }
 
 class Merge extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MERGE;
-
-  Merge(objects) : super(objects);
+  Merge(super.objects) {
+    tt = p.Term_TermType.MERGE;
+  }
 }
 
 class Between extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.BETWEEN;
-
-  Between(tbl, lower, upper, [options]) : super([tbl, lower, upper], options);
+  Between(tbl, lower, upper, [options]) : super([tbl, lower, upper], options) {
+    tt = p.Term_TermType.BETWEEN;
+  }
 }
 
 class DB extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DB;
-
-  DB(String dbName) : super([dbName]);
+  DB(String dbName) {
+    tt = p.Term_TermType.DB;
+    super([dbName]);
+  }
 
   TableList tableList() => TableList(this);
 
@@ -1183,10 +1140,9 @@ class DB extends RqlTopLevelQuery {
 }
 
 class FunCall extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FUNCALL;
-
   FunCall(argslist, expression) : super() {
+    tt = p.Term_TermType.FUNCALL;
+
     List temp = [];
     temp.add(expression);
     int argsCount;
@@ -1210,13 +1166,13 @@ class GetAllFunction extends RqlQuery {
   GetAllFunction(this._table);
 
   @override
-  GetAll call(args, [options]) {
+  GetAll call(attr, [options]) {
     if (options != null && options is Map == false) {
-      args = _listify(args, _table);
-      options = args.add(options);
-      return GetAll(args, options);
+      attr = _listify(attr, _table);
+      options = attr.add(options);
+      return GetAll(attr, options);
     }
-    return GetAll(_listify(args, _table), options);
+    return GetAll(_listify(attr, _table), options);
   }
 
   @override
@@ -1233,11 +1189,11 @@ class IndexStatusFunction extends RqlQuery {
   IndexStatusFunction(this._table);
 
   @override
-  IndexStatus call([indexes]) {
-    if (indexes == null) {
+  IndexStatus call([attr]) {
+    if (attr == null) {
       return IndexStatus.all(_table);
     }
-    return IndexStatus(_table, indexes);
+    return IndexStatus(_table, attr);
   }
 
   @override
@@ -1254,11 +1210,11 @@ class IndexWaitFunction extends RqlQuery {
   IndexWaitFunction(this._table);
 
   @override
-  IndexWait call([indexes]) {
-    if (indexes == null) {
+  IndexWait call([attr]) {
+    if (attr == null) {
       return IndexWait.all(_table);
     }
-    return IndexWait(_table, indexes);
+    return IndexWait(_table, attr);
   }
 
   @override
@@ -1270,13 +1226,14 @@ class IndexWaitFunction extends RqlQuery {
 }
 
 class Table extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TABLE;
-
-  Table(String tableName, [Map? options]) : super([tableName], options);
+  Table(String tableName, [Map? options]) : super([tableName], options) {
+    tt = p.Term_TermType.TABLE;
+  }
 
   Table.fromDB(DB db, String tableName, [Map? options])
-      : super([db, tableName], options);
+      : super([db, tableName], options) {
+    tt = p.Term_TermType.TABLE;
+  }
 
   Insert insert(records, [options]) => Insert(this, records, options);
 
@@ -1311,15 +1268,14 @@ class Table extends RqlQuery {
   dynamic get getAll => GetAllFunction(this);
 
   @override
-  InnerJoin innerJoin(otherSeq, [predicate]) =>
-      InnerJoin(this, otherSeq, predicate);
+  InnerJoin innerJoin(otherSequence, [predicate]) =>
+      InnerJoin(this, otherSequence, predicate);
 }
 
 class Get extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GET;
-
-  Get(table, key) : super([table, key]);
+  Get(table, key) : super([table, key]) {
+    tt = p.Term_TermType.GET;
+  }
 
   @override
   call(attr) {
@@ -1328,10 +1284,9 @@ class Get extends RqlMethodQuery {
 }
 
 class GetAll extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GET_ALL;
-
-  GetAll(keys, [options]) : super(keys, options);
+  GetAll(super.keys, [super.options]) {
+    tt = p.Term_TermType.GET_ALL;
+  }
 
   @override
   call(attr) {
@@ -1340,46 +1295,39 @@ class GetAll extends RqlMethodQuery {
 }
 
 class Reduce extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.REDUCE;
-
   Reduce(seq, reductionFunction, [base])
-      : super([seq, reductionFunction], base);
+      : super([seq, reductionFunction], base) {
+    tt = p.Term_TermType.REDUCE;
+  }
 }
 
 class Sum extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SUM;
-
-  Sum(obj, args) : super([obj, args]);
+  Sum(obj, args) : super([obj, args]) {
+    tt = p.Term_TermType.SUM;
+  }
 }
 
 class Avg extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.AVG;
-
-  Avg(obj, args) : super([obj, args]);
+  Avg(obj, args) : super([obj, args]) {
+    tt = p.Term_TermType.AVG;
+  }
 }
 
 class Min extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MIN;
-
-  Min(obj, args) : super([obj, args]);
+  Min(obj, args) : super([obj, args]) {
+    tt = p.Term_TermType.MIN;
+  }
 }
 
 class Max extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MAX;
-
-  Max(obj, args) : super([obj, args]);
+  Max(obj, args) : super([obj, args]) {
+    tt = p.Term_TermType.MAX;
+  }
 }
 
 class RqlMap extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MAP;
-
   RqlMap(argslist, expression) : super() {
+    tt = p.Term_TermType.MAP;
     int argsCount = argslist.length;
     List temp = [];
     temp.addAll(argslist);
@@ -1391,546 +1339,497 @@ class RqlMap extends RqlMethodQuery {
 }
 
 class Filter extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FILTER;
-
   Filter(selection, predicate, [Map? options])
-      : super([selection, predicate], options);
+      : super([selection, predicate], options) {
+    tt = p.Term_TermType.FILTER;
+  }
 }
 
 class ConcatMap extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CONCAT_MAP;
-
-  ConcatMap(seq, mappingFunction) : super([seq, mappingFunction]);
+  ConcatMap(seq, mappingFunction) : super([seq, mappingFunction]) {
+    tt = p.Term_TermType.CONCAT_MAP;
+  }
 }
 
 class OrderBy extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ORDER_BY;
-
-  OrderBy(args, [Map? options]) : super(args, options);
+  OrderBy(super.args, [super.options]) {
+    tt = p.Term_TermType.ORDER_BY;
+  }
 }
 
 class Distinct extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DISTINCT;
-
-  Distinct(sequence) : super([sequence]);
+  Distinct(sequence) : super([sequence]) {
+    tt = p.Term_TermType.DISTINCT;
+  }
 }
 
 class Count extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.COUNT;
-
-  Count([seq, filter]) : super([seq, filter]);
+  Count([seq, filter]) : super([seq, filter]) {
+    tt = p.Term_TermType.COUNT;
+  }
 }
 
 class Union extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.UNION;
-
-  Union(first, second) : super([first, second]);
+  Union(first, second) : super([first, second]) {
+    tt = p.Term_TermType.UNION;
+  }
 }
 
 class Nth extends RqlBracketQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.NTH;
-
-  Nth(selection, int index) : super([selection, index]);
+  Nth(selection, int index) : super([selection, index]) {
+    tt = p.Term_TermType.NTH;
+  }
 }
 
 class Match extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MATCH;
-
-  Match(obj, regex) : super([obj, regex]);
+  Match(obj, regex) : super([obj, regex]) {
+    tt = p.Term_TermType.MATCH;
+  }
 }
 
 class Split extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SPLIT;
-
-  Split(tbl, [obj, maxSplits]) : super([tbl, obj, maxSplits]);
+  Split(tbl, [obj, maxSplits]) : super([tbl, obj, maxSplits]) {
+    tt = p.Term_TermType.SPLIT;
+  }
 }
 
 class Upcase extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.UPCASE;
-
-  Upcase(obj) : super([obj]);
+  Upcase(obj) : super([obj]) {
+    tt = p.Term_TermType.UPCASE;
+  }
 }
 
 class Downcase extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DOWNCASE;
-
-  Downcase(obj) : super([obj]);
+  Downcase(obj) : super([obj]) {
+    tt = p.Term_TermType.DOWNCASE;
+  }
 }
 
 class OffsetsOf extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.OFFSETS_OF;
-
-  OffsetsOf(seq, index) : super([seq, index]);
+  OffsetsOf(seq, index) : super([seq, index]) {
+    tt = p.Term_TermType.OFFSETS_OF;
+  }
 }
 
 class IsEmpty extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.IS_EMPTY;
-
-  IsEmpty(selection) : super([selection]);
+  IsEmpty(selection) : super([selection]) {
+    tt = p.Term_TermType.IS_EMPTY;
+  }
 }
 
 class Group extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GROUP;
-
-  Group(obj, groups, [options]) : super([obj, ...groups], options);
+  Group(obj, groups, [options]) : super([obj, ...groups], options) {
+    tt = p.Term_TermType.GROUP;
+  }
 }
 
 class InnerJoin extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INNER_JOIN;
-
-  InnerJoin(first, second, predicate) : super([first, second, predicate]);
+  InnerJoin(first, second, predicate) : super([first, second, predicate]) {
+    tt = p.Term_TermType.INNER_JOIN;
+  }
 }
 
 class OuterJoin extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.OUTER_JOIN;
-
-  OuterJoin(first, second, predicate) : super([first, second, predicate]);
+  OuterJoin(first, second, predicate) : super([first, second, predicate]) {
+    tt = p.Term_TermType.OUTER_JOIN;
+  }
 }
 
 class EqJoin extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.EQ_JOIN;
-
   EqJoin(first, second, predicate, [Map? options])
-      : super([first, second, predicate], options);
+      : super([first, second, predicate], options) {
+    tt = p.Term_TermType.EQ_JOIN;
+  }
 }
 
 class Zip extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ZIP;
-
-  Zip(seq) : super([seq]);
+  Zip(seq) : super([seq]) {
+    tt = p.Term_TermType.ZIP;
+  }
 }
 
 class CoerceTo extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.COERCE_TO;
-
-  CoerceTo(obj, String type) : super([obj, type]);
+  CoerceTo(obj, String type) : super([obj, type]) {
+    tt = p.Term_TermType.COERCE_TO;
+  }
 }
 
 class Ungroup extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.UNGROUP;
-
-  Ungroup(obj) : super([obj]);
+  Ungroup(obj) : super([obj]) {
+    tt = p.Term_TermType.UNGROUP;
+  }
 }
 
 class TypeOf extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TYPE_OF;
-
-  TypeOf(obj) : super([obj]);
+  TypeOf(obj) : super([obj]) {
+    tt = p.Term_TermType.TYPE_OF;
+  }
 }
 
 class Update extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.UPDATE;
-
-  Update(tbl, expression, [Map? options]) : super([tbl, expression], options);
+  Update(tbl, expression, [Map? options]) : super([tbl, expression], options) {
+    tt = p.Term_TermType.UPDATE;
+  }
 }
 
 class Delete extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DELETE;
-
-  Delete(selection, [Map? options]) : super([selection], options);
+  Delete(selection, [Map? options]) : super([selection], options) {
+    tt = p.Term_TermType.DELETE;
+  }
 }
 
 class Replace extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.REPLACE;
-
-  Replace(table, expression, [options]) : super([table, expression], options);
+  Replace(table, expression, [options]) : super([table, expression], options) {
+    tt = p.Term_TermType.REPLACE;
+  }
 }
 
 class Insert extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INSERT;
-
-  Insert(table, records, [Map? options]) : super([table, records], options);
+  Insert(table, records, [Map? options]) : super([table, records], options) {
+    tt = p.Term_TermType.INSERT;
+  }
 }
 
 class DbCreate extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DB_CREATE;
-
-  DbCreate(String dbName, [Map? options]) : super([dbName], options);
+  DbCreate(String dbName, [Map? options]) : super([dbName], options) {
+    tt = p.Term_TermType.DB_CREATE;
+  }
 }
 
 class DbDrop extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DB_DROP;
-
-  DbDrop(String dbName, [Map? options]) : super([dbName], options);
+  DbDrop(String dbName, [Map? options]) : super([dbName], options) {
+    tt = p.Term_TermType.DB_DROP;
+  }
 }
 
 class DbList extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DB_LIST;
-
-  DbList() : super();
+  DbList() : super() {
+    tt = p.Term_TermType.DB_LIST;
+  }
 }
 
 class Range extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.RANGE;
+  Range(end) : super([end]) {
+    tt = p.Term_TermType.RANGE;
+  }
 
-  Range(end) : super([end]);
+  Range.asStream() : super() {
+    tt = p.Term_TermType.RANGE;
+  }
 
-  Range.asStream() : super();
-
-  Range.withStart(start, end) : super([start, end]);
+  Range.withStart(start, end) : super([start, end]) {
+    tt = p.Term_TermType.RANGE;
+  }
 }
 
 class TableCreate extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TABLE_CREATE;
+  TableCreate(table, [Map? options]) : super([table], options) {
+    tt = p.Term_TermType.TABLE_CREATE;
+  }
 
-  TableCreate(table, [Map? options]) : super([table], options);
-
-  TableCreate.fromDB(db, table, [Map? options]) : super([db, table], options);
+  TableCreate.fromDB(db, table, [Map? options]) : super([db, table], options) {
+    tt = p.Term_TermType.TABLE_CREATE;
+  }
 }
 
 class TableDrop extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TABLE_DROP;
+  TableDrop(tbl, [Map? options]) : super([tbl], options) {
+    tt = p.Term_TermType.TABLE_DROP;
+  }
 
-  TableDrop(tbl, [Map? options]) : super([tbl], options);
-
-  TableDrop.fromDB(db, tbl, [Map? options]) : super([db, tbl], options);
+  TableDrop.fromDB(db, tbl, [Map? options]) : super([db, tbl], options) {
+    tt = p.Term_TermType.TABLE_DROP;
+  }
 }
 
 class TableList extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TABLE_LIST;
-
-  TableList([db]) : super(db == null ? [] : [db]);
+  TableList([db]) : super(db == null ? [] : [db]) {
+    tt = p.Term_TermType.TABLE_LIST;
+  }
 }
 
 class IndexCreate extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_CREATE;
-
-  IndexCreate(tbl, index, [Map? options]) : super([tbl, index], options);
+  IndexCreate(tbl, index, [Map? options]) : super([tbl, index], options) {
+    tt = p.Term_TermType.INDEX_CREATE;
+  }
 
   IndexCreate.withIndexFunction(tbl, index, [indexFunction, Map? options])
-      : super([tbl, index, indexFunction], options);
+      : super([tbl, index, indexFunction], options) {
+    tt = p.Term_TermType.INDEX_CREATE;
+  }
 }
 
 class IndexDrop extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_DROP;
-
-  IndexDrop(table, index) : super([table, index]);
+  IndexDrop(table, index) : super([table, index]) {
+    tt = p.Term_TermType.INDEX_DROP;
+  }
 }
 
 class IndexRename extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_RENAME;
-
   IndexRename(table, oldName, newName, options)
-      : super([table, oldName, newName], options);
+      : super([table, oldName, newName], options) {
+    tt = p.Term_TermType.INDEX_RENAME;
+  }
 }
 
 class IndexList extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_LIST;
-
-  IndexList(table) : super([table]);
+  IndexList(table) : super([table]) {
+    tt = p.Term_TermType.INDEX_LIST;
+  }
 }
 
 class IndexStatus extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_STATUS;
-
   IndexStatus(tbl, indexList)
-      : super([tbl, indexList is List ? Args(indexList) : indexList]);
-  IndexStatus.all(tbl) : super([tbl]);
+      : super([tbl, indexList is List ? Args(indexList) : indexList]) {
+    tt = p.Term_TermType.INDEX_STATUS;
+  }
+  IndexStatus.all(tbl) : super([tbl]) {
+    tt = p.Term_TermType.INDEX_STATUS;
+  }
 }
 
 class IndexWait extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INDEX_WAIT;
-
   IndexWait(tbl, indexList)
-      : super([tbl, indexList is List ? Args(indexList) : indexList]);
-  IndexWait.all(tbl) : super([tbl]);
+      : super([tbl, indexList is List ? Args(indexList) : indexList]) {
+    tt = p.Term_TermType.INDEX_WAIT;
+  }
+  IndexWait.all(tbl) : super([tbl]) {
+    tt = p.Term_TermType.INDEX_WAIT;
+  }
 }
 
 class Sync extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SYNC;
-
-  Sync(table) : super([table]);
+  Sync(table) : super([table]) {
+    tt = p.Term_TermType.SYNC;
+  }
 }
 
 class Branch extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.BRANCH;
-
   Branch(predicate, trueBranch, falseBranch)
-      : super([predicate, trueBranch, falseBranch]);
-  Branch.fromArgs(Args args) : super([args]);
+      : super([predicate, trueBranch, falseBranch]) {
+    tt = p.Term_TermType.BRANCH;
+  }
+  Branch.fromArgs(Args args) : super([args]) {
+    tt = p.Term_TermType.BRANCH;
+  }
 }
 
 class Or extends RqlBoolOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.OR;
-
-  Or(orables) : super(orables);
+  Or(super.orables) {
+    tt = p.Term_TermType.OR;
+  }
 }
 
 class And extends RqlBoolOperQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.AND;
-
-  And(andables) : super(andables);
+  And(super.andables) {
+    tt = p.Term_TermType.AND;
+  }
 }
 
 class ForEach extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FOR_EACH;
-
-  ForEach(obj, writeQuery) : super([obj, writeQuery]);
+  ForEach(obj, writeQuery) : super([obj, writeQuery]) {
+    tt = p.Term_TermType.FOR_EACH;
+  }
 }
 
 class Info extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INFO;
-
-  Info(knowable) : super([knowable]);
+  Info(knowable) : super([knowable]) {
+    tt = p.Term_TermType.INFO;
+  }
 }
 
 class InsertAt extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INSERT_AT;
-
-  InsertAt(ar, index, value) : super([ar, index, value]);
+  InsertAt(ar, index, value) : super([ar, index, value]) {
+    tt = p.Term_TermType.INSERT_AT;
+  }
 }
 
 class SpliceAt extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SPLICE_AT;
-
-  SpliceAt(ar, index, value) : super([ar, index, value]);
+  SpliceAt(ar, index, value) : super([ar, index, value]) {
+    tt = p.Term_TermType.SPLICE_AT;
+  }
 }
 
 class DeleteAt extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DELETE_AT;
-
-  DeleteAt(ar, index, value) : super([ar, index, value]);
+  DeleteAt(ar, index, value) : super([ar, index, value]) {
+    tt = p.Term_TermType.DELETE_AT;
+  }
 }
 
 class ChangeAt extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CHANGE_AT;
-
-  ChangeAt(ar, index, value) : super([ar, index, value]);
+  ChangeAt(ar, index, value) : super([ar, index, value]) {
+    tt = p.Term_TermType.CHANGE_AT;
+  }
 }
 
 class Sample extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SAMPLE;
-
-  Sample(selection, int i) : super([selection, i]);
+  Sample(selection, int i) : super([selection, i]) {
+    tt = p.Term_TermType.SAMPLE;
+  }
 }
 
 class Uuid extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.UUID;
-  Uuid(str) : super(str == null ? [] : [str]);
+  Uuid(str) : super(str == null ? [] : [str]) {
+    tt = p.Term_TermType.UUID;
+  }
 }
 
 class Json extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.JSON;
-
-  Json(String jsonString, [Map? options]) : super([jsonString], options);
+  Json(String jsonString, [Map? options]) : super([jsonString], options) {
+    tt = p.Term_TermType.JSON;
+  }
 }
 
 class Args extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ARGS;
-
-  Args(List array) : super([array]);
+  Args(List array) : super([array]) {
+    tt = p.Term_TermType.ARGS;
+  }
 }
 
 class ToISO8601 extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TO_ISO8601;
-
-  ToISO8601(obj) : super([obj]);
+  ToISO8601(obj) : super([obj]) {
+    tt = p.Term_TermType.TO_ISO8601;
+  }
 }
 
 class During extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DURING;
-
-  During(obj, start, end, [Map? options]) : super([obj, start, end], options);
+  During(obj, start, end, [Map? options]) : super([obj, start, end], options) {
+    tt = p.Term_TermType.DURING;
+  }
 }
 
 class Date extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DATE;
-
-  Date(obj) : super([obj]);
+  Date(obj) : super([obj]) {
+    tt = p.Term_TermType.DATE;
+  }
 }
 
 class TimeOfDay extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TIME_OF_DAY;
-
-  TimeOfDay(obj) : super([obj]);
+  TimeOfDay(obj) : super([obj]) {
+    tt = p.Term_TermType.TIME_OF_DAY;
+  }
 }
 
 class Timezone extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TIMEZONE;
-
-  Timezone(zone) : super([zone]);
+  Timezone(zone) : super([zone]) {
+    tt = p.Term_TermType.TIMEZONE;
+  }
 }
 
 class Year extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.YEAR;
-
-  Year(year) : super([year]);
+  Year(year) : super([year]) {
+    tt = p.Term_TermType.YEAR;
+  }
 }
 
 class Month extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MONTH;
-
-  Month(month) : super([month]);
+  Month(month) : super([month]) {
+    tt = p.Term_TermType.MONTH;
+  }
 }
 
 class Day extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DAY;
-
-  Day(day) : super([day]);
+  Day(day) : super([day]) {
+    tt = p.Term_TermType.DAY;
+  }
 }
 
 class DayOfWeek extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DAY_OF_WEEK;
-
-  DayOfWeek(dow) : super([dow]);
+  DayOfWeek(dow) : super([dow]) {
+    tt = p.Term_TermType.DAY_OF_WEEK;
+  }
 }
 
 class DayOfYear extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DAY_OF_YEAR;
-
-  DayOfYear(doy) : super([doy]);
+  DayOfYear(doy) : super([doy]) {
+    tt = p.Term_TermType.DAY_OF_YEAR;
+  }
 }
 
 class Hours extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.HOURS;
-
-  Hours(hours) : super([hours]);
+  Hours(hours) : super([hours]) {
+    tt = p.Term_TermType.HOURS;
+  }
 }
 
 class Minutes extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.MINUTES;
-
-  Minutes(minutes) : super([minutes]);
+  Minutes(minutes) : super([minutes]) {
+    tt = p.Term_TermType.MINUTES;
+  }
 }
 
 class Seconds extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.SECONDS;
-
-  Seconds(seconds) : super([seconds]);
+  Seconds(seconds) : super([seconds]) {
+    tt = p.Term_TermType.SECONDS;
+  }
 }
 
 class Binary extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.BINARY;
-  Binary(data) : super([data]);
+  Binary(data) : super([data]) {
+    tt = p.Term_TermType.BINARY;
+  }
 }
 
 class Time extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TIME;
-
-  Time(Args args) : super([args]);
+  Time(Args args) : super([args]) {
+    tt = p.Term_TermType.TIME;
+  }
 
   Time.withHour(int year, int month, int day, String timezone, int hour)
-      : super([year, month, day, hour, timezone]);
+      : super([year, month, day, hour, timezone]) {
+    tt = p.Term_TermType.TIME;
+  }
 
   Time.withMinute(
       int year, int month, int day, String timezone, int hour, int minute)
-      : super([year, month, day, hour, minute, timezone]);
+      : super([year, month, day, hour, minute, timezone]) {
+    tt = p.Term_TermType.TIME;
+  }
 
   Time.withSecond(int year, int month, int day, String timezone, int hour,
       int minute, int second)
-      : super([year, month, day, hour, minute, second, timezone]);
+      : super([year, month, day, hour, minute, second, timezone]) {
+    tt = p.Term_TermType.TIME;
+  }
 }
 
 class RqlISO8601 extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ISO8601;
-
   RqlISO8601(strTime, [defaultTimeZone = "Z"])
-      : super([strTime], {"default_timezone": defaultTimeZone});
+      : super([strTime], {"default_timezone": defaultTimeZone}) {
+    tt = p.Term_TermType.ISO8601;
+  }
 }
 
 class EpochTime extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.EPOCH_TIME;
-
-  EpochTime(eptime) : super([eptime]);
+  EpochTime(eptime) : super([eptime]) {
+    tt = p.Term_TermType.EPOCH_TIME;
+  }
 }
 
 class Now extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.NOW;
-
-  Now() : super();
+  Now() : super() {
+    tt = p.Term_TermType.NOW;
+  }
 }
 
 class InTimezone extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.IN_TIMEZONE;
-
-  InTimezone(zoneable, tz) : super([zoneable, tz]);
+  InTimezone(zoneable, tz) : super([zoneable, tz]) {
+    tt = p.Term_TermType.IN_TIMEZONE;
+  }
 }
 
 class ToEpochTime extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TO_EPOCH_TIME;
-
-  ToEpochTime(obj) : super([obj]);
+  ToEpochTime(obj) : super([obj]) {
+    tt = p.Term_TermType.TO_EPOCH_TIME;
+  }
 }
 
 class Func extends RqlQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FUNC;
   Function fun;
   int argsCount;
   static int nextId = 0;
   Func(this.fun, this.argsCount) : super(null, null) {
+    tt = p.Term_TermType.FUNC;
     List vrs = [];
     List vrids = [];
 
@@ -1945,164 +1844,141 @@ class Func extends RqlQuery {
 }
 
 class Asc extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.ASC;
-
-  Asc(obj) : super([obj]);
+  Asc(obj) : super([obj]) {
+    tt = p.Term_TermType.ASC;
+  }
 }
 
 class Desc extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DESC;
-
-  Desc(attr) : super([attr]);
+  Desc(attr) : super([attr]) {
+    tt = p.Term_TermType.DESC;
+  }
 }
 
 class Literal extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.LITERAL;
-
-  Literal(attr) : super([attr]);
+  Literal(attr) : super([attr]) {
+    tt = p.Term_TermType.LITERAL;
+  }
 }
 
 class Circle extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CIRCLE;
-
-  Circle(point, radius, [Map? options]) : super([point, radius], options);
+  Circle(point, radius, [Map? options]) : super([point, radius], options) {
+    tt = p.Term_TermType.CIRCLE;
+  }
 }
 
 class Distance extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.DISTANCE;
-
-  Distance(obj, geo, [Map? options]) : super([obj, geo], options);
+  Distance(obj, geo, [Map? options]) : super([obj, geo], options) {
+    tt = p.Term_TermType.DISTANCE;
+  }
 }
 
 class Fill extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.FILL;
-
-  Fill(obj) : super([obj]);
+  Fill(obj) : super([obj]) {
+    tt = p.Term_TermType.FILL;
+  }
 }
 
 class GeoJson extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GEOJSON;
-
-  GeoJson(Map geoJson) : super([geoJson]);
+  GeoJson(Map geoJson) : super([geoJson]) {
+    tt = p.Term_TermType.GEOJSON;
+  }
 }
 
 class ToGeoJson extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.TO_GEOJSON;
-
-  ToGeoJson(obj) : super([obj]);
+  ToGeoJson(obj) : super([obj]) {
+    tt = p.Term_TermType.TO_GEOJSON;
+  }
 }
 
 class GetIntersecting extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GET_INTERSECTING;
-
-  GetIntersecting(table, geo, [Map? options]) : super([table, geo], options);
+  GetIntersecting(table, geo, [Map? options]) : super([table, geo], options) {
+    tt = p.Term_TermType.GET_INTERSECTING;
+  }
 }
 
 class GetNearest extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.GET_NEAREST;
-
-  GetNearest(table, point, Map? options) : super([table, point], options);
+  GetNearest(table, point, Map? options) : super([table, point], options) {
+    tt = p.Term_TermType.GET_NEAREST;
+  }
 }
 
 class Includes extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INCLUDES;
-
-  Includes(obj, geo) : super([obj, geo]);
+  Includes(obj, geo) : super([obj, geo]) {
+    tt = p.Term_TermType.INCLUDES;
+  }
 }
 
 class Intersects extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.INTERSECTS;
-
-  Intersects(obj, geo) : super([obj, geo]);
+  Intersects(obj, geo) : super([obj, geo]) {
+    tt = p.Term_TermType.INTERSECTS;
+  }
 }
 
 class Line extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.LINE;
-
-  Line(points) : super(points);
+  Line(super.points) {
+    tt = p.Term_TermType.LINE;
+  }
 }
 
 class Point extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.POINT;
-
-  Point(long, lat) : super([long, lat]);
+  Point(long, lat) : super([long, lat]) {
+    tt = p.Term_TermType.POINT;
+  }
 }
 
 class Polygon extends RqlTopLevelQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.POLYGON;
-
-  Polygon(points) : super(points);
+  Polygon(super.points) {
+    tt = p.Term_TermType.POLYGON;
+  }
 }
 
 class PolygonSub extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.POLYGON_SUB;
-
-  PolygonSub(var poly1, var poly2) : super([poly1, poly2]);
+  PolygonSub(var poly1, var poly2) : super([poly1, poly2]) {
+    tt = p.Term_TermType.POLYGON_SUB;
+  }
 }
 
 class Config extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.CONFIG;
-
-  Config(obj) : super([obj]);
+  Config(obj) : super([obj]) {
+    tt = p.Term_TermType.CONFIG;
+  }
 }
 
 class Rebalance extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.REBALANCE;
-
-  Rebalance(obj) : super([obj]);
+  Rebalance(obj) : super([obj]) {
+    tt = p.Term_TermType.REBALANCE;
+  }
 }
 
 class Reconfigure extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.RECONFIGURE;
-
-  Reconfigure(obj, Map? options) : super([obj], options);
+  Reconfigure(obj, Map? options) : super([obj], options) {
+    tt = p.Term_TermType.RECONFIGURE;
+  }
 }
 
 class Status extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.STATUS;
-
-  Status(obj) : super([obj]);
+  Status(obj) : super([obj]) {
+    tt = p.Term_TermType.STATUS;
+  }
 }
 
 class Wait extends RqlMethodQuery {
-  @override
-  p.Term_TermType? tt = p.Term_TermType.WAIT;
-
-  Wait(obj, [Map? options]) : super([obj], options);
+  Wait(obj, [Map? options]) : super([obj], options) {
+    tt = p.Term_TermType.WAIT;
+  }
 }
 
 class RqlTimeName extends RqlQuery {
-  @override
-  p.Term_TermType? tt;
-
-  RqlTimeName(this.tt) : super();
+  RqlTimeName(p.Term_TermType termType) {
+    super.tt = termType;
+  }
 }
 
 class RqlConstant extends RqlQuery {
-  @override
-  p.Term_TermType? tt;
-
-  RqlConstant(this.tt) : super();
+  RqlConstant(p.Term_TermType termType) {
+    super.tt = termType;
+  }
 }
 
 class _RqlAllOptions {
