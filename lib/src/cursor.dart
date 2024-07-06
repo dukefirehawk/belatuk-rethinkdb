@@ -52,7 +52,7 @@ class Cursor extends Stream {
 }
 
 class Feed extends Cursor {
-  Feed(conn, opts, query) : super(conn, opts, query);
+  Feed(super.conn, super.opts, super.query);
 
   @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
@@ -63,7 +63,7 @@ class Feed extends Cursor {
 }
 
 class UnionedFeed extends Cursor {
-  UnionedFeed(conn, opts, query) : super(conn, opts, query);
+  UnionedFeed(super.conn, super.opts, super.query);
 
   @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
@@ -85,7 +85,7 @@ class AtomFeed extends Cursor {
 }
 
 class OrderByLimitFeed extends Cursor {
-  OrderByLimitFeed(conn, opts, query) : super(conn, opts, query);
+  OrderByLimitFeed(super.conn, super.opts, super.query);
 
   @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
