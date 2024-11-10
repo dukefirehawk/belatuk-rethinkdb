@@ -6,7 +6,7 @@ A dart driver for connecting to RethinkDB, the open-source database for the real
 
 ### Installation
 
-* Start `rethinkDB` as a container service. Refer to [Running rethinkDB](doc\README.md)
+* Start `rethinkDB` as a container service. Refer to [Running rethinkDB](doc/README.md)
 
 * Install from [Pub](https://pub.dev/)
 
