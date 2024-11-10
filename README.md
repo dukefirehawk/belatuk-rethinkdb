@@ -1,10 +1,12 @@
 # Belatuk RethinkDB
 
-A dart driver for connecting to RethinkDB, the open-source database for the realtime web. This driver comes from a fork of [RethinkDB Driver](https://github.com/G0mb/rethink_db) and upgraded to support Dart 3 language syntax.
+A dart driver for connecting to RethinkDB, the open-source database for the realtime web. This driver is a fork of [RethinkDB Driver](https://github.com/G0mb/rethink_db) with dependencies upgraded to support Dart 3.
 
 ## Getting Started
 
 ### Installation
+
+* Start `rethinkDB` as a container service. Refer to [Running rethinkDB](doc\README.md)
 
 * Install from [Pub](https://pub.dev/)
 
