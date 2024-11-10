@@ -1,4 +1,4 @@
-library rethink_db;
+library;
 
 import 'dart:async';
 import 'dart:io';
