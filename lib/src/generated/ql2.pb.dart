@@ -1,4 +1,3 @@
-///
 //  Generated code. Do not modify.
 //  source: ql2.proto
 //
@@ -76,14 +75,14 @@ class Query_AssocPair extends $pb.GeneratedMessage {
     $core.String? key,
     Term? val,
   }) {
-    final _result = create();
+    final result = create();
     if (key != null) {
-      _result.key = key;
+      result.key = key;
     }
     if (val != null) {
-      _result.val = val;
+      result.val = val;
     }
-    return _result;
+    return result;
   }
   factory Query_AssocPair.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -194,26 +193,26 @@ class Query extends $pb.GeneratedMessage {
     $core.bool? acceptsRJson,
     $core.Iterable<Query_AssocPair>? globalOptargs,
   }) {
-    final _result = create();
+    final result = create();
     if (type != null) {
-      _result.type = type;
+      result.type = type;
     }
     if (query != null) {
-      _result.query = query;
+      result.query = query;
     }
     if (token != null) {
-      _result.token = token;
+      result.token = token;
     }
     if (oBSOLETENoreply != null) {
-      _result.oBSOLETENoreply = oBSOLETENoreply;
+      result.oBSOLETENoreply = oBSOLETENoreply;
     }
     if (acceptsRJson != null) {
-      _result.acceptsRJson = acceptsRJson;
+      result.acceptsRJson = acceptsRJson;
     }
     if (globalOptargs != null) {
-      _result.globalOptargs.addAll(globalOptargs);
+      result.globalOptargs.addAll(globalOptargs);
     }
-    return _result;
+    return result;
   }
   factory Query.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -340,17 +339,17 @@ class Frame extends $pb.GeneratedMessage {
     $fixnum.Int64? pos,
     $core.String? opt,
   }) {
-    final _result = create();
+    final result = create();
     if (type != null) {
-      _result.type = type;
+      result.type = type;
     }
     if (pos != null) {
-      _result.pos = pos;
+      result.pos = pos;
     }
     if (opt != null) {
-      _result.opt = opt;
+      result.opt = opt;
     }
-    return _result;
+    return result;
   }
   factory Frame.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -434,11 +433,11 @@ class Backtrace extends $pb.GeneratedMessage {
   factory Backtrace({
     $core.Iterable<Frame>? frames,
   }) {
-    final _result = create();
+    final result = create();
     if (frames != null) {
-      _result.frames.addAll(frames);
+      result.frames.addAll(frames);
     }
-    return _result;
+    return result;
   }
   factory Backtrace.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -538,29 +537,29 @@ class Response extends $pb.GeneratedMessage {
     $core.Iterable<Response_ResponseNote>? notes,
     Response_ErrorType? errorType,
   }) {
-    final _result = create();
+    final result = create();
     if (type != null) {
-      _result.type = type;
+      result.type = type;
     }
     if (token != null) {
-      _result.token = token;
+      result.token = token;
     }
     if (response != null) {
-      _result.response.addAll(response);
+      result.response.addAll(response);
     }
     if (backtrace != null) {
-      _result.backtrace = backtrace;
+      result.backtrace = backtrace;
     }
     if (profile != null) {
-      _result.profile = profile;
+      result.profile = profile;
     }
     if (notes != null) {
-      _result.notes.addAll(notes);
+      result.notes.addAll(notes);
     }
     if (errorType != null) {
-      _result.errorType = errorType;
+      result.errorType = errorType;
     }
-    return _result;
+    return result;
   }
   factory Response.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -683,14 +682,14 @@ class Datum_AssocPair extends $pb.GeneratedMessage {
     $core.String? key,
     Datum? val,
   }) {
-    final _result = create();
+    final result = create();
     if (key != null) {
-      _result.key = key;
+      result.key = key;
     }
     if (val != null) {
-      _result.val = val;
+      result.val = val;
     }
-    return _result;
+    return result;
   }
   factory Datum_AssocPair.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -802,26 +801,26 @@ class Datum extends $pb.GeneratedMessage {
     $core.Iterable<Datum>? rArray,
     $core.Iterable<Datum_AssocPair>? rObject,
   }) {
-    final _result = create();
+    final result = create();
     if (type != null) {
-      _result.type = type;
+      result.type = type;
     }
     if (rBool != null) {
-      _result.rBool = rBool;
+      result.rBool = rBool;
     }
     if (rNum != null) {
-      _result.rNum = rNum;
+      result.rNum = rNum;
     }
     if (rStr != null) {
-      _result.rStr = rStr;
+      result.rStr = rStr;
     }
     if (rArray != null) {
-      _result.rArray.addAll(rArray);
+      result.rArray.addAll(rArray);
     }
     if (rObject != null) {
-      _result.rObject.addAll(rObject);
+      result.rObject.addAll(rObject);
     }
-    return _result;
+    return result;
   }
   factory Datum.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -928,14 +927,14 @@ class Term_AssocPair extends $pb.GeneratedMessage {
     $core.String? key,
     Term? val,
   }) {
-    final _result = create();
+    final result = create();
     if (key != null) {
-      _result.key = key;
+      result.key = key;
     }
     if (val != null) {
-      _result.val = val;
+      result.val = val;
     }
-    return _result;
+    return result;
   }
   factory Term_AssocPair.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>
@@ -1035,20 +1034,20 @@ class Term extends $pb.GeneratedMessage {
     $core.Iterable<Term>? args,
     $core.Iterable<Term_AssocPair>? optargs,
   }) {
-    final _result = create();
+    final result = create();
     if (type != null) {
-      _result.type = type;
+      result.type = type;
     }
     if (datum != null) {
-      _result.datum = datum;
+      result.datum = datum;
     }
     if (args != null) {
-      _result.args.addAll(args);
+      result.args.addAll(args);
     }
     if (optargs != null) {
-      _result.optargs.addAll(optargs);
+      result.optargs.addAll(optargs);
     }
-    return _result;
+    return result;
   }
   factory Term.fromBuffer($core.List<$core.int> i,
           [$pb.ExtensionRegistry r = $pb.ExtensionRegistry.EMPTY]) =>

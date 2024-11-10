@@ -74,7 +74,7 @@ class UnionedFeed extends Cursor {
 }
 
 class AtomFeed extends Cursor {
-  AtomFeed(conn, opts, query) : super(conn, opts, query);
+  AtomFeed(super.conn, super.opts, super.query);
 
   @override
   toSet() => throw RqlDriverError("`toSet` is not available for feeds.");
