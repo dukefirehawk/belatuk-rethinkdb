@@ -33,6 +33,15 @@ void main() {
     }
   });
 
+  // The first setUp creates the database; drop it after the last test, even
+  // when a test fails.
+  tearDownAll(() async {
+    if (testDbName == null) return;
+    Connection conn = await r.connect();
+    await r.dbDrop(testDbName!).run(conn);
+    conn.close();
+  });
+
   group("add command -> ", () {
     test("should add two numbers", () async {
       var result = await r.expr(2).add(2).run(connection);

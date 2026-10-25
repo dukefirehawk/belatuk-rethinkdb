@@ -59,6 +59,15 @@ void main() {
     }
   });
 
+  // The first setUp creates the database; drop it after the last test, even
+  // when a test fails.
+  tearDownAll(() async {
+    if (testDbName == null) return;
+    Connection conn = await r.connect();
+    await r.dbDrop(testDbName!).run(conn);
+    conn.close();
+  });
+
   group("pluck command -> ", () {
     test("should use pluck and return the children of the person with the id equal to 1", () async {
       var parent = await r

@@ -1,3 +1,3 @@
-# AI Context for Angel3
+# AI Context for Belatuk RethinkDB
 
 Please read and follow the guidelines in AI_CONTEXT.md

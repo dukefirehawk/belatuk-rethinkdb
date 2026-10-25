@@ -7,25 +7,31 @@ class Cursor extends Stream {
   int _outstandingRequests = 0;
   bool _endFlag = false;
   bool _delivering = false;
+  bool _closing = false;
   final StreamController _s = StreamController();
 
-  Cursor(this._conn, this._query, this._opts);
+  Cursor(this._conn, this._query, this._opts) {
+    _conn._cursors.add(this);
+  }
 
   void _extend(Response response) {
+    // A batch that arrives after close(), such as the reply to its STOP, is
+    // not delivered.
+    if (_closing) return;
     _endFlag = response._type != p.Response_ResponseType.SUCCESS_PARTIAL.value;
 
-    if (response._type != p.Response_ResponseType.SUCCESS_PARTIAL.value &&
-        response._type != p.Response_ResponseType.SUCCESS_SEQUENCE.value) {
-      _s.addError(
-        RqlDriverError("Unexpected response type received for cursor"),
-        null,
-      );
-    }
-
-    try {
-      _conn._checkErrorResponse(response, _query._term);
-    } catch (e) {
-      _s.addError(e);
+    var error =
+        _conn._checkErrorResponse(response, _query._term) ??
+        (response._type != p.Response_ResponseType.SUCCESS_PARTIAL.value &&
+                response._type != p.Response_ResponseType.SUCCESS_SEQUENCE.value
+            ? RqlDriverError("Unexpected response type received for cursor")
+            : null);
+    if (error != null) {
+      // The data of an error response is its message, not results, and the
+      // server has ended the query.
+      _s.addError(error);
+      close();
+      return;
     }
 
     var convertedData = _query._recursivelyConvertPseudotypes(
@@ -35,11 +41,10 @@ class Cursor extends Stream {
     _delivering = true;
     _s.addStream(Stream.fromIterable(convertedData as Iterable)).then((f) {
       _delivering = false;
-      if (!_endFlag && _conn._socket == null) {
-        // The connection was closed while this batch was delivered, so there
-        // is no next batch: the cursor ends, as when the server ends it.
-        _s.close();
-      } else if (!_endFlag) {
+      if (_closing || _endFlag) {
+        // Closed while this batch was delivered, or the last batch.
+        _end();
+      } else {
         _outstandingRequests++;
         Query query = Query(
           p.Query_QueryType.CONTINUE,
@@ -48,22 +53,39 @@ class Cursor extends Stream {
           null,
         );
         query._cursor = this;
-        _conn._sendQueue.addLast(query);
         // An error of the next batch is added to this cursor by _extend, so
         // the future of the query itself is not listened to.
-        _conn._sendQuery()?.ignore();
-      } else {
-        _s.close();
+        _conn._send(query).ignore();
       }
     });
   }
 
-  Future close() => _s.close();
+  /// Ends this cursor: it asks for no more batches, and the server stops the
+  /// query unless it has ended. A batch being delivered is delivered first,
+  /// since the stream cannot be closed before.
+  Future close() {
+    if (!_closing) {
+      _closing = true;
+      if (!_endFlag && !_conn.isClosed) {
+        _outstandingRequests++;
+        Query query = Query(p.Query_QueryType.STOP, _query._token, null, null);
+        // The reply goes to this cursor, which ignores it.
+        query._cursor = this;
+        _conn._send(query).ignore();
+      }
+      if (!_delivering) _end();
+    }
+    return _s.done;
+  }
 
-  /// Ends this cursor, as its connection is closed. A batch being delivered
-  /// ends it when it is done, since the stream cannot be closed before.
+  void _end() {
+    _s.close();
+    _conn._cursors.remove(this);
+  }
+
+  /// Ends this cursor, as its connection is closed.
   void _connectionClosed() {
-    if (!_delivering) _s.close();
+    close();
   }
 
   @override

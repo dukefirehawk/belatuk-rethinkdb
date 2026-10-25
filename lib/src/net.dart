@@ -62,13 +62,17 @@ class Connection {
   late Digest _serverSignature;
   late final Map? _sslOpts;
 
-  final Completer<Connection> _completer = Completer();
+  Completer<Connection> _completer = Completer();
 
   int _responseLength = 0;
   final List<int> _responseBuffer = [];
 
-  final Map _replyQueries = {};
-  final Queue<dynamic> _sendQueue = Queue<Query>();
+  final Map<int, Query> _replyQueries = {};
+  final Queue<Query> _sendQueue = Queue<Query>();
+
+  /// The cursors that can still get batches, ended when the connection
+  /// closes.
+  final Set<Cursor> _cursors = {};
 
   final Map<String, List> _listeners = <String, List>{};
 
@@ -89,15 +93,8 @@ class Connection {
   }
 
   Future? server() {
-    // RqlQuery query =
-    RqlQuery query = Query(
-      p.Query_QueryType.SERVER_INFO,
-      _getToken(),
-      null,
-      null,
-    );
-    _sendQueue.add(query);
-    return _start(query);
+    Query query = Query(p.Query_QueryType.SERVER_INFO, _getToken(), null, null);
+    return _send(query);
   }
 
   Future<Connection> connect([bool noreplyWait = true]) {
@@ -106,6 +103,15 @@ class Connection {
 
   Future<Connection> reconnect([bool noreplyWait = true]) {
     close(noreplyWait);
+    // A connect still waiting for its socket is replaced by this one.
+    if (!_completer.isCompleted) {
+      _completer.future.ignore();
+      _completer.completeError(
+        RqlDriverError("Connecting to $_host:$_port was replaced."),
+      );
+    }
+    // Each connection has its own handshake, which completes this.
+    var completer = _completer = Completer<Connection>();
 
     if (_listeners["connect"] != null) {
       for (var func in _listeners["connect"]!) {
@@ -122,12 +128,31 @@ class Connection {
 
     sock
         .then((socket) {
+          if (!identical(_completer, completer)) {
+            // A later reconnect() replaced this attempt.
+            socket.destroy();
+            return;
+          }
           // ignore: unnecessary_null_comparison
           if (socket != null) {
             _socket = socket;
+            // The server or the network can close the socket too. A socket
+            // that close() or a reconnect() replaced is not this connection's
+            // any more.
+            void dropped([_]) {
+              if (identical(_socket, socket)) {
+                socket.destroy();
+                _closed(dropped: true);
+              }
+            }
+
+            // A write to a socket the peer closed fails on done.
+            socket.done.then((_) {}, onError: dropped);
             _socket!.listen(
               _handleResponse,
+              onError: dropped,
               onDone: () {
+                dropped();
                 if (_listeners["close"] != null) {
                   for (var func in _listeners["close"]!) {
                     func();
@@ -152,12 +177,13 @@ class Connection {
           }
         })
         .catchError((err) {
-          _completer.completeError(
+          if (completer.isCompleted) return;
+          completer.completeError(
             RqlDriverError("Could not connect to $_host:$_port.  Error $err"),
           );
         });
 
-    return _completer.future;
+    return completer.future;
   }
 
   void _handleResponse(List<int> bytes) {
@@ -282,7 +308,7 @@ class Connection {
   }
 
   void _handleQueryResponse(Response response) {
-    Query query = _replyQueries.remove(response._token);
+    Query query = _replyQueries.remove(response._token)!;
 
     Exception? hasError = _checkErrorResponse(response, query._term);
     // ignore: unnecessary_null_comparison
@@ -344,22 +370,56 @@ class Connection {
   void close([bool noreplyWait = true]) {
     // ignore: unnecessary_null_comparison
     if (_socket != null) {
-      if (noreplyWait) this.noreplyWait();
+      // The socket is destroyed right after, so its reply never arrives.
+      if (noreplyWait) (this.noreplyWait() as Future).ignore();
+      var socket = _socket!;
+      // Forgotten first: destroying the socket ends its stream, which must
+      // not count as the server or the network closing it.
+      _closed(dropped: false);
       try {
-        _socket!.close();
+        socket.close();
       } catch (err) {
         // TODO: do something with err.
       }
 
-      _socket!.destroy();
-      _socket = null;
+      socket.destroy();
+    }
+  }
 
-      // No more batches can arrive, so the open cursors, such as changefeeds,
-      // end.
-      for (var query in _replyQueries.values.toList()) {
-        (query as Query)._cursor?._connectionClosed();
+  /// Forgets the socket, whoever closed it. No more batches or replies can
+  /// arrive, so the open cursors, such as changefeeds, end, and a connect
+  /// waiting for its handshake fails.
+  ///
+  /// When the server or the network [dropped] the connection, the queries
+  /// waiting for a reply fail too. After close(), they are dropped, so that a
+  /// query run without waiting for it, such as noreplyWait(), is not an
+  /// uncaught error.
+  void _closed({required bool dropped}) {
+    _socket = null;
+    for (var cursor in _cursors.toList()) {
+      cursor._connectionClosed();
+    }
+    _cursors.clear();
+
+    var waiting = _replyQueries.values.toList();
+    _replyQueries.clear();
+    for (var query in dropped ? waiting : <Query>[]) {
+      if (!query._queryCompleter.isCompleted) {
+        query._queryCompleter.completeError(
+          RqlDriverError("Connection is closed."),
+        );
       }
     }
+
+    if (!_completer.isCompleted) {
+      _completer.completeError(
+        RqlDriverError(
+          "Connection to $_host:$_port closed before the handshake completed.",
+        ),
+      );
+    }
+    _responseBuffer.clear();
+    _responseLength = 0;
   }
 
   /// Alias for addListener
@@ -394,26 +454,25 @@ class Connection {
   }
 
   dynamic noreplyWait() {
-    // RqlQuery query =
-    RqlQuery query = Query(
+    Query query = Query(
       p.Query_QueryType.NOREPLY_WAIT,
       _getToken(),
       null,
       null,
     );
-
-    _sendQueue.add(query);
-    return _start(query);
+    return _send(query);
   }
 
-  void _handleCursorResponse(Response response) {
-    Cursor cursor = _replyQueries[response._token]._cursor;
+  /// Passes a reply to the cursor of its query. The query is forgotten after
+  /// the cursor's last batch.
+  void _handleCursorResponse(Query query, Response response) {
+    Cursor cursor = query._cursor!;
     cursor._extend(response);
     cursor._outstandingRequests--;
 
     if (response._type != p.Response_ResponseType.SUCCESS_PARTIAL.value &&
-        cursor._outstandingRequests == 0) {
-      _replyQueries[response._token]._cursor = null;
+        cursor._outstandingRequests <= 0) {
+      _replyQueries.remove(response._token);
     }
   }
 
@@ -439,15 +498,15 @@ class Connection {
 
         Response response = Response(responseToken, responseBuf);
 
-        if (_replyQueries[response._token]._cursor != null) {
-          _handleCursorResponse(response);
-        }
-        //if for some reason there are other queries on the line...
-
-        if (_replyQueries.containsKey(response._token)) {
-          _handleQueryResponse(response);
+        Query? query = _replyQueries[response._token];
+        if (query == null) {
+          // The reply to a query this connection no longer waits for, such
+          // as one of a cursor that has ended.
+        } else if (query._cursor != null) {
+          // A batch of a cursor goes to that cursor only.
+          _handleCursorResponse(query, response);
         } else {
-          throw RqlDriverError("Unexpected response received.");
+          _handleQueryResponse(response);
         }
 
         if (_responseLength > 0) {
@@ -495,8 +554,17 @@ class Connection {
     return null;
   }
 
-  Future? _sendQuery() {
-    if (_sendQueue.isNotEmpty) {
+  /// Queues [query], sends the queue, and returns the future of [query].
+  Future _send(Query query) {
+    _sendQueue.addLast(query);
+    _sendQuery();
+    return query._queryCompleter.future;
+  }
+
+  /// Sends every queued query, or fails it if this connection is closed, so
+  /// that no query is left in the queue for a later connection.
+  void _sendQuery() {
+    while (_sendQueue.isNotEmpty) {
       Query query = _sendQueue.removeFirst();
 
       // Error if this connection has closed
@@ -504,7 +572,6 @@ class Connection {
         query._queryCompleter.completeError(
           RqlDriverError("Connection is closed."),
         );
-        return query._queryCompleter.future;
       } else {
         // Send json
         List<int> queryStr = utf8.encode(query.serialize());
@@ -514,10 +581,8 @@ class Connection {
         _socket!.add(queryHeader);
 
         _replyQueries[query._token] = query;
-        return query._queryCompleter.future;
       }
     }
-    return null;
   }
 
   Future? _start(RqlQuery term, [Map? globalOptargs]) {
@@ -534,8 +599,7 @@ class Connection {
       term,
       globalOptargs,
     );
-    _sendQueue.addLast(query);
-    return _sendQuery();
+    return _send(query);
   }
 
   Uint8List _toBytes(int data) {
