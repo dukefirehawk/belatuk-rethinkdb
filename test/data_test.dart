@@ -61,6 +61,15 @@ void main() {
     }
   });
 
+  // The first setUp creates the database; drop it after the last test, even
+  // when a test fails.
+  tearDownAll(() async {
+    if (testDbName == null) return;
+    Connection conn = await r.connect();
+    await r.dbDrop(testDbName!).run(conn);
+    conn.close();
+  });
+
   group("contains command -> ", () {
     test("should check if the table contains an existing child", () async {
       var result = await r

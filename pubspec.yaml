@@ -1,6 +1,6 @@
 name: belatuk_rethinkdb
 description: A dart driver for connecting to RethinkDB, the open-source database for the realtime web
-version: 1.4.0
+version: 2.0.0
 homepage: https://github.com/dart-backend/belatuk-rethinkdb
 repository: https://github.com/dart-backend/belatuk-rethinkdb
 issue_tracker: https://github.com/dart-backend/belatuk-rethinkdb/issues

@@ -612,7 +612,7 @@ class RqlQuery {
   IsEmpty isEmpty() => IsEmpty(this);
 
   Slice slice(int start, [end, Map? options]) =>
-      Slice(this, start, end, options!);
+      Slice(this, start, end, options);
 
   Fold fold(dynamic base, dynamic function, [Map? options]) =>
       Fold(this, base, function, options);
@@ -779,7 +779,7 @@ class RqlQuery {
       GetIntersecting(this, geo, options);
 
   GetNearest getNearest(Point point, [Map? options]) =>
-      GetNearest(this, point, options!);
+      GetNearest(this, point, options);
 
   Includes includes(dynamic geo) => Includes(this, geo);
 
@@ -795,7 +795,7 @@ class RqlQuery {
 
   Status status() => Status(this);
 
-  Wait wait([Map? options]) => Wait(this, options!);
+  Wait wait([Map? options]) => Wait(this, options);
 
   dynamic call(dynamic attr) {
     return GetField(this, attr);

@@ -33,6 +33,15 @@ void main() {
     }
   });
 
+  // The first setUp creates the database; drop it after the last test, even
+  // when a test fails.
+  tearDownAll(() async {
+    if (testDbName == null) return;
+    Connection conn = await r.connect();
+    await r.dbDrop(testDbName!).run(conn);
+    conn.close();
+  });
+
   group("eq command -> ", () {
     test("should check two equal values with eq", () async {
       var result = await r.expr(0).eq(0).run(connection);

@@ -14,7 +14,7 @@ A dart driver for connecting to RethinkDB, the open-source database for the real
 
 ```yaml
 dependencies:
-  belatuk_rethinkdb: ^1.0.0
+  belatuk_rethinkdb: ^2.0.0
 ```
 
 * Import the package into your project:
