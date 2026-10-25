@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.1
+
+* Fixed an uncaught `Connection is closed.` error when a connection is closed while a cursor, such as a changefeed, asks for its next batch
+* Closing a connection ends its open cursors, such as changefeeds waiting for changes, where their streams never ended
+* A query run on a closed connection throws an `RqlDriverError`, where it returned `null` and the error was uncaught
+
 ## 1.4.0
 
 * Require dart >= 3.13.0

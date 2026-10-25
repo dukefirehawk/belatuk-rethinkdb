@@ -353,6 +353,12 @@ class Connection {
 
       _socket!.destroy();
       _socket = null;
+
+      // No more batches can arrive, so the open cursors, such as changefeeds,
+      // end.
+      for (var query in _replyQueries.values.toList()) {
+        (query as Query)._cursor?._connectionClosed();
+      }
     }
   }
 
@@ -498,6 +504,7 @@ class Connection {
         query._queryCompleter.completeError(
           RqlDriverError("Connection is closed."),
         );
+        return query._queryCompleter.future;
       } else {
         // Send json
         List<int> queryStr = utf8.encode(query.serialize());

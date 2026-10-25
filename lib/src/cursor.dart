@@ -6,6 +6,7 @@ class Cursor extends Stream {
   final Map _opts;
   int _outstandingRequests = 0;
   bool _endFlag = false;
+  bool _delivering = false;
   final StreamController _s = StreamController();
 
   Cursor(this._conn, this._query, this._opts);
@@ -31,8 +32,14 @@ class Cursor extends Stream {
       response._data,
       _opts,
     );
+    _delivering = true;
     _s.addStream(Stream.fromIterable(convertedData as Iterable)).then((f) {
-      if (!_endFlag) {
+      _delivering = false;
+      if (!_endFlag && _conn._socket == null) {
+        // The connection was closed while this batch was delivered, so there
+        // is no next batch: the cursor ends, as when the server ends it.
+        _s.close();
+      } else if (!_endFlag) {
         _outstandingRequests++;
         Query query = Query(
           p.Query_QueryType.CONTINUE,
@@ -42,7 +49,9 @@ class Cursor extends Stream {
         );
         query._cursor = this;
         _conn._sendQueue.addLast(query);
-        _conn._sendQuery();
+        // An error of the next batch is added to this cursor by _extend, so
+        // the future of the query itself is not listened to.
+        _conn._sendQuery()?.ignore();
       } else {
         _s.close();
       }
@@ -50,6 +59,12 @@ class Cursor extends Stream {
   }
 
   Future close() => _s.close();
+
+  /// Ends this cursor, as its connection is closed. A batch being delivered
+  /// ends it when it is done, since the stream cannot be closed before.
+  void _connectionClosed() {
+    if (!_delivering) _s.close();
+  }
 
   @override
   StreamSubscription listen(
